@@ -74,7 +74,9 @@ const FIELD_SECTIONS = [
       ['negQuality', '负面 · 产品质量', 'number', '条'],
       ['negAfterSale', '负面 · 产品售后', 'number', '条'],
       ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'],
-      ['voiceShots', '用户原声截图', 'images']
+      ['voiceGoodShots', '用户原声 · 正面截图（可多张）', 'images'],
+      ['voiceNeutralShots', '用户原声 · 中性截图（可多张）', 'images'],
+      ['voiceBadShots', '用户原声 · 负面截图（可多张）', 'images']
     ]
   },
   {
@@ -118,7 +120,7 @@ const MODULE_SECTIONS = [
     ['contentPlan', '站内内容 · 计划', 'number', '篇'], ['contentOnline', '站内内容 · 已上线', 'number', '篇'], ['contentTraffic', '站内内容 · 内容流量', 'text', '如：126,500'], ['contentDailyRate', '站内内容 · 日完成率', 'number', '%'], ['contentMonthlyRate', '站内内容 · 10 月累完成率', 'number', '%']
   ]},
   { id: 'reputation', title: '口碑与用户原声', desc: '填写口碑进度与评论区负面声音洞察。', fields: [
-    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'], ['voiceShots', '用户原声截图（可多张）', 'images']
+    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'], ['voiceGoodShots', '用户原声 · 正面截图（可多张）', 'images'], ['voiceNeutralShots', '用户原声 · 中性截图（可多张）', 'images'], ['voiceBadShots', '用户原声 · 负面截图（可多张）', 'images']
   ]},
   { id: 'adjust', title: '动作调整', desc: '记录流量与口碑今日待执行的动作。', fields: [
     ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'], ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
@@ -181,6 +183,10 @@ function migrateLegacy(data) {
   setIfEmpty('biliTotalOnline', num(src.biliOnline));
   setIfEmpty('douyinTotalPlan', num(src.douyinPlanKol));
   setIfEmpty('douyinTotalOnline', num(src.douyinOnline));
+  /* 用户原声拆三档前的旧字段，归入中性 */
+  if (has(src.voiceShots) && !has(out.voiceGoodShots) && !has(out.voiceNeutralShots) && !has(out.voiceBadShots)) {
+    out.voiceNeutralShots = src.voiceShots;
+  }
   return out;
 }
 function parseMetricNumber(value) {
@@ -629,12 +635,14 @@ function initReport() {
         ${negativePie(d)}
         ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary', 'margin-top:14px')}
       </div>
-      ${(() => { const gallery = shotBlock(d.voiceShots); return gallery ? `<div class="subsection"><div class="subsection-title"><span>用户原声</span><small>USER VOICE</small></div>${gallery}</div>` : ''; })()}
+      ${(() => { const g = shotBlock(d.voiceGoodShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>正面原声</span><small>POSITIVE VOICE</small></div>${g}</div>` : ''; })()}
+      ${(() => { const g = shotBlock(d.voiceNeutralShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>中性原声</span><small>NEUTRAL VOICE</small></div>${g}</div>` : ''; })()}
+      ${(() => { const g = shotBlock(d.voiceBadShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>负面原声</span><small>NEGATIVE VOICE</small></div>${g}</div>` : ''; })()}
     </section>
     ${actionCard(d)}
     <section class="card">
       <div class="card-head"><div><div class="card-kicker">05 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
-      ${noteBlock('当日诊断', d.trafficDiagnosis, 'note', 'trafficDiagnosis')}
+      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${hlNums(d.trafficDiagnosis)}</span></div>
       ${shotBlock(d.diagShot)}
     </section>
   `;
@@ -737,7 +745,7 @@ function geoChannel(d) {
     </div>
   </div>`;
 }
-function shotBlock(raw) {
+function shotBlock(raw, cls = '') {
   let list = [];
   try {
     const v = typeof raw === 'string' && raw.trim().startsWith('[') ? JSON.parse(raw) : raw;
@@ -745,7 +753,7 @@ function shotBlock(raw) {
   } catch { list = []; }
   list = list.filter(src => has(src) && String(src).startsWith('data:image'));
   if (!list.length) return '';
-  return `<div class="shot-view">${list.map(src => `<img src="${esc(src)}" alt="原生截图">`).join('')}</div>`;
+  return `<div class="shot-view${cls ? ` ${cls}` : ''}">${list.map(src => `<img src="${esc(src)}" alt="原生截图">`).join('')}</div>`;
 }
 function openLightbox(src) {
   const old = document.getElementById('shot-lightbox');
@@ -809,6 +817,10 @@ function negativePie(d) {
   </div>`;
 }
 function noteBlock(label, value, cls, field, style) { return `<div class="${cls}"${style ? ` style="${style}"` : ''}><span class="note-label">${label}</span><span class="note-body"${editableAttrs(field)}>${textOrEmpty(value)}</span></div>`; }
+function hlNums(v) {
+  if (!has(v)) return '<span class="empty-state">待补充</span>';
+  return esc(v).replace(/(\d+(?:\.\d+)?)(%|秒|万|条|篇|寸|倍|x)/g, '<b class="num-hl">$1$2</b>');
+}
 function commitField(field, raw) {
   const current = readData();
   let value = String(raw == null ? '' : raw).replace(/\u00a0/g, ' ').trim();
