@@ -584,7 +584,7 @@ function initReport() {
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
             ${metric('10月目标完成率（10.21日-10.31日）', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
           </div>
-          ${trendPanel('modelSearch', d, { width: 900, height: 300, large: true, open: true })}
+          ${trendPanel('modelSearch', d, { width: 600, height: 300, large: true, open: true })}
           ${shotBlock(d.modelShot)}
         </div>
         <div class="metric-group secondary">

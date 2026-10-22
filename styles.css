@@ -103,7 +103,7 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .trend-chart-head b { color: var(--ink); font-size: 14px; }
 .trend-chart-scroll { overflow-x: auto; padding: 0 8px 6px; }
 .trend-chart { display: block; width: 100%; min-width: 560px; height: 210px; overflow: visible; }
-.trend-chart-lg { min-width: 720px; height: 330px; }
+.trend-chart-lg { min-width: 460px; max-width: 600px; height: 300px; }
 .trend-chart-lg .trend-grid text, .trend-chart-lg .trend-date { font-size: 13px; }
 .trend-chart-lg .trend-value { font-size: 14px; }
 .trend-chart-lg .trend-line { stroke-width: 3.5; }
