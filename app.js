@@ -343,6 +343,12 @@ function initEditor() {
     localStorage.removeItem(STORAGE_KEY); location.reload();
   });
   document.querySelector('#preview-btn').addEventListener('click', () => { saveForm(false, true); location.href = 'index.html'; });
+  document.querySelector('#shareback-btn').addEventListener('click', () => {
+    saveForm(false, true);
+    const merged = { ...readData(), ...Object.fromEntries(new FormData(form).entries()) };
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(merged)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    copyText(`${location.origin}${location.pathname.replace(/edit\.html$/, 'index.html')}?d=${encoded}`, '链接已复制，发给日报负责人即可');
+  });
   updateT1(data.reportDate);
   document.querySelector('[name="reportDate"]').addEventListener('input', e => updateT1(e.target.value));
 
