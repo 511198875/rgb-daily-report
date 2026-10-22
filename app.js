@@ -33,16 +33,23 @@ const FIELD_SECTIONS = [
       ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'],
       ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'],
       ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'],
+      ['redbookStore', '红书 · 当日进店', 'number', '次'],
+      ['redbookDoD', '红书 · 进店环比', 'number', '%'],
+      ['redbookCost', '红书 · 消耗进度', 'number', '%'],
       ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']],
       ['biliTotalPlan', 'B站 · 总计划', 'number', '条'],
       ['biliTodayPlan', 'B站 · 今日计划', 'number', '条'],
       ['biliTotalOnline', 'B站 · 总上线', 'number', '条'],
       ['biliTodayOnline', 'B站 · 今日上线', 'number', '条'],
+      ['biliStore', 'B站 · 当日进店', 'number', '次'],
+      ['biliDoD', 'B站 · 进店环比', 'number', '%'],
+      ['biliCost', 'B站 · 消耗进度', 'number', '%'],
       ['biliHealth', 'B站 · 健康度', 'select', ['正常', '滞后']],
       ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'],
       ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'],
       ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'],
       ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'],
+      ['douyinCost', '抖音 · 消耗进度', 'number', '%'],
       ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']],
       ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'],
       ['geoArticles', 'GEO · 发文', 'number', '篇'],
@@ -89,19 +96,19 @@ const MODULE_SECTIONS = [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '冲刺累完成率（留空自动算）', 'number', '%'], ['modelShot', '后台原生截图', 'image']
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '冲刺累完成率（留空自动算）', 'number', '%'], ['modelShot', '后台原生截图（可多张）', 'images']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
   ]},
   { id: 'redbook', title: '红书', desc: '填写红书总计划、今日计划、总上线、今日上线与健康度。', fields: [
-    ['redbookTotalPlan', '红书 · 总计划', 'number', '篇'], ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'], ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'], ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'], ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']]
+    ['redbookTotalPlan', '红书 · 总计划', 'number', '篇'], ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'], ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'], ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'], ['redbookStore', '红书 · 当日进店', 'number', '次'], ['redbookDoD', '红书 · 进店环比', 'number', '%'], ['redbookCost', '红书 · 消耗进度', 'number', '%'], ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']]
   ]},
   { id: 'bilibili', title: 'B站', desc: '填写 B 站总计划、今日计划、总上线、今日上线与健康度。', fields: [
-    ['biliTotalPlan', 'B站 · 总计划', 'number', '条'], ['biliTodayPlan', 'B站 · 今日计划', 'number', '条'], ['biliTotalOnline', 'B站 · 总上线', 'number', '条'], ['biliTodayOnline', 'B站 · 今日上线', 'number', '条'], ['biliHealth', 'B站 · 健康度', 'select', ['正常', '滞后']]
+    ['biliTotalPlan', 'B站 · 总计划', 'number', '条'], ['biliTodayPlan', 'B站 · 今日计划', 'number', '条'], ['biliTotalOnline', 'B站 · 总上线', 'number', '条'], ['biliTodayOnline', 'B站 · 今日上线', 'number', '条'], ['biliStore', 'B站 · 当日进店', 'number', '次'], ['biliDoD', 'B站 · 进店环比', 'number', '%'], ['biliCost', 'B站 · 消耗进度', 'number', '%'], ['biliHealth', 'B站 · 健康度', 'select', ['正常', '滞后']]
   ]},
   { id: 'douyin', title: '抖音', desc: '填写抖音总计划、今日计划、总上线、今日上线与健康度。', fields: [
-    ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'], ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'], ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'], ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'], ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']]
+    ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'], ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'], ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'], ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'], ['douyinCost', '抖音 · 消耗进度', 'number', '%'], ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']]
   ]},
   { id: 'geo', title: 'GEO', desc: '填写 GEO 核心问题、发文及露出率。', fields: [
     ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'], ['geoArticles', 'GEO · 发文', 'number', '篇'], ['geoExposure', 'GEO · 露出率', 'number', '%']
@@ -116,7 +123,7 @@ const MODULE_SECTIONS = [
     ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'], ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
   ]},
   { id: 'diagnosis', title: '流量诊断', desc: '记录流量异常、机会点与关键结论。', fields: [
-    ['trafficDiagnosis', '流量 · 当日诊断', 'textarea', '异常原因、机会点或关键结论'], ['diagShot', '诊断原生截图', 'image']
+    ['trafficDiagnosis', '流量 · 当日诊断', 'textarea', '异常原因、机会点或关键结论'], ['diagShot', '诊断原生截图（可多张）', 'images']
   ]}
 ];
 
@@ -594,7 +601,7 @@ function initReport() {
       <div class="channel-grid">
         ${channel('红书', d, 'redbook', { unit: ' 篇' })}
         ${channel('B站', d, 'bili', { unit: ' 条' })}
-        ${channel('抖音', d, 'douyin', { unit: ' 条' })}
+        ${channel('抖音', d, 'douyin', { unit: ' 条', store: false })}
         ${geoChannel(d)}
       </div>
       <div class="subsection">
@@ -694,6 +701,12 @@ function healthChip(v, key) {
 function channel(name, d, key, opts = {}) {
   const unit = opts.unit || ' 条';
   const stat = (label, field, dodKey) => `<div class="channel-stat"><span>${label}</span><b${editableAttrs(`${key}${field}`)}>${val(d, `${key}${field}`, unit)}</b>${dodKey ? dodTag(autoDod(d, dodKey)) : ''}</div>`;
+  const storeStat = opts.store === false ? '' : `
+      <div class="channel-stat"><span>当日进店</span><b${editableAttrs(`${key}Store`)}>${val(d, `${key}Store`, ' 次')}</b></div>
+      <div class="channel-stat"><span>进店环比</span><b${editableAttrs(`${key}DoD`)}>${trend(d[`${key}DoD`])}</b></div>`;
+  const costRaw = parseMetricNumber(d[`${key}Cost`]);
+  const costStat = `
+      <div class="channel-stat wide cost-stat"><span>消耗进度</span><b${editableAttrs(`${key}Cost`)}>${val(d, `${key}Cost`, '%')}</b>${costRaw !== null ? `<div class="cost-bar"><i style="width:${Math.max(0, Math.min(100, costRaw))}%"></i></div>` : ''}</div>`;
   return `<div class="channel-card">
     <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`], key)}</div>
     <div class="channel-stats">
@@ -701,6 +714,8 @@ function channel(name, d, key, opts = {}) {
       ${stat('今日计划', 'TodayPlan')}
       ${stat('总上线', 'TotalOnline', `${key}TotalOnline`)}
       ${stat('今日上线', 'TodayOnline')}
+      ${storeStat}
+      ${costStat}
     </div>
   </div>`;
 }
@@ -850,7 +865,9 @@ function toPlainText(d) {
       item('今日计划', d[`${key}TodayPlan`], unit),
       item('总上线', d[`${key}TotalOnline`], onlineDod ? `${unit}（日环比 ${onlineDod}）` : unit),
       item('今日上线', d[`${key}TodayOnline`], unit),
-      item('健康度', d[`${key}Health`])
+      item('健康度', d[`${key}Health`]),
+      ...(opts.store !== false ? [item('当日进店', d[`${key}Store`], ' 次'), item('进店环比', trRaw(d[`${key}DoD`]))] : []),
+      item('消耗', d[`${key}Cost`], '%')
     ]);
     return line ? `${label}：${line}` : '';
   };
