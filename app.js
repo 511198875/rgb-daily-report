@@ -16,9 +16,10 @@ const FIELD_SECTIONS = [
     id: 'traffic', title: '核心流量数据', desc: '建议统一填写百分号前的数字，例如 12.5。',
     fields: [
       ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'],
+      ['modelSearchTarget', '10 月型号词目标', 'number', '次'],
       ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'],
-      ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'],
-      ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'],
+      ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'],
+      ['modelSearchMonthlyRate', '10 月累完成率（留空自动算）', 'number', '%'],
       ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'],
       ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'],
       ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'],
@@ -87,7 +88,7 @@ const MODULE_SECTIONS = [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'], ['modelShot', '后台原生截图', 'image']
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率（留空自动算）', 'number', '%'], ['modelShot', '后台原生截图', 'image']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
@@ -284,6 +285,45 @@ function trendPoints(data, key) {
     .slice(-7)
     .map(point => ({ date: point.date, value: Number(point.value) }));
 }
+/* 完成率自动计算：按 10 月目标自动推导日完成率与月累完成率 */
+function monthSum(data, key) {
+  const dataDate = tMinusOne(data.reportDate);
+  if (!dataDate) return null;
+  const month = dataDate.slice(0, 7);
+  const map = {};
+  (data._trends?.[key] || []).forEach(point => {
+    if (point && point.date && point.date.slice(0, 7) === month && Number.isFinite(Number(point.value))) map[point.date] = Number(point.value);
+  });
+  const today = TREND_METRICS[key].parse(data[key]);
+  if (today !== null) map[dataDate] = today;
+  const dates = Object.keys(map);
+  if (!dates.length) return null;
+  return dates.reduce((sum, date) => sum + map[date], 0);
+}
+function daysInMonth(dateStr) {
+  const d = new Date(`${dateStr.slice(0, 7)}-01T12:00:00`);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+}
+function autoRate(data, key, kind) {
+  const target = parseMetricNumber(data[`${key}Target`]);
+  if (target === null || target <= 0) return null;
+  const dataDate = tMinusOne(data.reportDate);
+  if (!dataDate) return null;
+  if (kind === 'daily') {
+    const today = TREND_METRICS[key].parse(data[key]);
+    if (today === null) return null;
+    const dailyTarget = target / daysInMonth(dataDate);
+    return Math.round(today / dailyTarget * 1000) / 10;
+  }
+  const sum = monthSum(data, key);
+  if (sum === null) return null;
+  return Math.round(sum / target * 1000) / 10;
+}
+function rateText(value, fallback) {
+  if (value !== null && Number.isFinite(value)) return `${value}%`;
+  return has(fallback) ? `${fallback}%` : '待补充';
+}
+
 /* 日环比自动计算：取该指标最近两个数据点，无需手填 */
 function autoDod(data, key) {
   const points = trendPoints(data, key);
@@ -488,12 +528,12 @@ function initReport() {
       <div class="card-head"><div><div class="card-kicker">01 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
       <div class="metric-groups">
         <div class="metric-group">
-          <div class="metric-group-label">型号词表现</div>
+          <div class="metric-group-label">型号词表现${has(d.modelSearchTarget) ? `<small>10 月目标 ${esc(d.modelSearchTarget)}</small>` : ''}</div>
           <div class="metrics">
             ${metric('型号词搜索（T-1）', val(d, 'modelSearch'))}
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
-            ${metric('日完成率', val(d, 'modelSearchDailyRate', '%'))}
-            ${metric('10 月累完成率', val(d, 'modelSearchMonthlyRate', '%'))}
+            ${metric('日完成率', rateText(autoRate(d, 'modelSearch', 'daily'), d.modelSearchDailyRate))}
+            ${metric('10 月累完成率', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
           </div>
           ${trendPanel('modelSearch', d, { width: 900, height: 300, large: true, open: true })}
           ${shotBlock(d.modelShot)}
@@ -738,7 +778,7 @@ function toPlainText(d) {
   const modelDod = dodText(autoDod(d, 'modelSearch'));
   return `【${name} · 流量日报】${formatDate(d.reportDate, true)}\n数据周期：${formatDate(tMinusOne(d.reportDate), true)}（T-1）${cp ? `｜时间进度 ${cp.percent}%（第 ${cp.passedDays}/${cp.totalDays} 天）` : ''}`
     + section('① 核心流量', [
-        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), item('日完成率', d.modelSearchDailyRate, '%'), item('10月累完成率', d.modelSearchMonthlyRate, '%')]),
+        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), `日完成率 ${rateText(autoRate(d, 'modelSearch', 'daily'), d.modelSearchDailyRate)}`, `10月累完成率 ${rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate)}`]),
         bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [

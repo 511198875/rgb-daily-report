@@ -75,6 +75,7 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .metric-group { display: grid; gap: 8px; }
 .metric-group-label { display: flex; align-items: center; gap: 9px; color: #555962; font-size: 12px; font-weight: 850; letter-spacing: .04em; }
 .metric-group-label::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+.metric-group-label small { margin-left: auto; color: #90939b; font-size: 11px; font-weight: 600; letter-spacing: 0; }
 .metric-group.secondary .metric-group-label::before { background: var(--red); }
 .metric { background: #fff; padding: 12px 13px; min-height: 76px; }
 .metric label { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; min-height: 0; }
