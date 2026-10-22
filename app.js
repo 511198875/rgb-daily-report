@@ -347,7 +347,9 @@ function initEditor() {
     saveForm(false, true);
     const merged = { ...readData(), ...Object.fromEntries(new FormData(form).entries()) };
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(merged)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    copyText(`${location.origin}${location.pathname.replace(/edit\.html$/, 'index.html')}?d=${encoded}`, '链接已复制，发给日报负责人即可');
+    const url = `${location.origin}${location.pathname.replace(/edit\.html$/, 'index.html')}?d=${encoded}`;
+    if (copySync(url)) showToast('链接已复制，发给日报负责人即可');
+    else window.prompt('复制下面的链接，发给日报负责人：', url);
   });
   updateT1(data.reportDate);
   document.querySelector('[name="reportDate"]').addEventListener('input', e => updateT1(e.target.value));
@@ -643,6 +645,18 @@ function toPlainText(d) {
         has(d.reputationAdjustment) ? `口碑：${d.reputationAdjustment}` : ''
       ].filter(Boolean).join('\n'))
     + section('⑤ 流量诊断', has(d.trafficDiagnosis) ? d.trafficDiagnosis : '');
+}
+
+function copySync(value) {
+  const ta = document.createElement('textarea');
+  ta.value = value;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  return ok;
 }
 
 async function copyText(value, message) {
