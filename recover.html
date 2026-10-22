@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日报数据检查与恢复</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html"><i class="brand-mark"></i><span>RGB DAILY</span><span>数据恢复</span></a>
+      <nav class="nav" aria-label="页面导航"><a href="index.html">日报展示</a><a href="edit.html">填写数据</a></nav>
+    </div>
+  </header>
+  <main class="shell" style="padding:24px 0 60px">
+    <section class="card" style="margin-bottom:12px">
+      <h2>本机数据检查</h2>
+      <div id="summary" style="margin-top:10px"></div>
+    </section>
+    <section class="card">
+      <h2>可恢复的数据</h2>
+      <div id="list" style="margin-top:10px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn secondary small" id="export-btn" type="button">导出全部备份</button>
+        <label class="btn secondary small" style="cursor:pointer">导入备份<input type="file" id="import-file" accept=".json" hidden></label>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+<script>
+var STORE = 'rgb-daily-report-v1';
+var ARCH = 'rgb-daily-archive-v1';
+var HOME = 'index.html';
+
+function read(key) { try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { return {}; } }
+function num(v) { var n = Number(String(v == null ? '' : v).replace(/[,，\s]/g, '')); return isFinite(n) ? n : null; }
+function has(v) { return v !== undefined && v !== null && String(v).trim() !== ''; }
+function norm(d) {
+  var o = {}, k;
+  for (k in d) o[k] = d[k];
+  function set(key, v) { if (!has(o[key]) && v !== null && v !== undefined) o[key] = String(v); }
+  function sum(a, b) { var x = num(a), y = num(b); return (x === null && y === null) ? null : ((x || 0) + (y || 0)); }
+  set('redbookTotalPlan', sum(d.redbookPlanKol, d.redbookPlanKoc));
+  set('redbookTotalOnline', num(d.redbookOnline));
+  set('biliTotalPlan', num(d.biliPlanKol));
+  set('biliTotalOnline', num(d.biliOnline));
+  set('douyinTotalPlan', num(d.douyinPlanKol));
+  set('douyinTotalOnline', num(d.douyinOnline));
+  return o;
+}
+function contentKeys(d) {
+  var base = ['reportDate', 'productName', 'owner', 'stage'];
+  return Object.keys(d).filter(function (k) { return k.charAt(0) !== '_' && base.indexOf(k) < 0 && has(d[k]); });
+}
+function brief(d) {
+  var o = norm(d), bits = [];
+  if (has(o.modelSearch)) bits.push('型号词 ' + o.modelSearch);
+  if (has(o.searchCtr)) bits.push('CTR ' + o.searchCtr + '%');
+  if (has(o.redbookTotalOnline)) bits.push('红书 ' + o.redbookTotalOnline + ' 篇');
+  if (has(o.biliTotalOnline)) bits.push('B站 ' + o.biliTotalOnline + ' 条');
+  if (has(o.douyinTotalOnline)) bits.push('抖音 ' + o.douyinTotalOnline + ' 条');
+  return bits.length ? bits.join('｜') : contentKeys(d).slice(0, 5).join('、');
+}
+function toast(msg) { var t = document.querySelector('#toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 1800); }
+
+function render() {
+  var cur = read(STORE);
+  var arch = read(ARCH);
+  var curCount = contentKeys(cur).length;
+  document.querySelector('#summary').innerHTML =
+    '<div style="font-size:13px;line-height:1.9;color:#353943">' +
+      '当前域名：<b>' + location.host + '</b>（数据只存在这个域名下，换一个链接看不到）<br>' +
+      '当前填写数据：<b>' + (curCount ? curCount + ' 个字段' : '空') + '</b>' + (curCount ? ' · ' + brief(cur) : '') + '<br>' +
+      '本地归档快照：<b>' + Object.keys(arch).length + ' 份</b>' +
+    '</div>';
+
+  var rows = [];
+  if (curCount) rows.push({ date: cur.reportDate || '（无日期）', data: cur, tag: '当前' });
+  Object.keys(arch).sort().reverse().forEach(function (d) {
+    var snap = arch[d] || {};
+    if (contentKeys(snap).length) rows.push({ date: d, data: snap, tag: '快照' });
+  });
+
+  var host = document.querySelector('#list');
+  if (!rows.length) {
+    host.innerHTML = '<div style="color:#8a8880;font-size:13px">这个域名下没有找到任何填写过的数据。如果你是在另一个链接上填的，去那个链接打开本页（' + location.pathname.replace(/[^/]+$/, '') + 'recover.html）就能看到。</div>';
+    return;
+  }
+  host.innerHTML = rows.map(function (r, i) {
+    return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:' + (i ? '1px solid var(--line)' : '0') + '">' +
+      '<b style="min-width:96px">' + r.date + '</b>' +
+      '<span style="font-size:11px;padding:2px 8px;border-radius:99px;background:#f0efeb;color:#70737c">' + r.tag + '</span>' +
+      '<span style="flex:1;min-width:200px;font-size:13px;color:#353943">' + brief(r.data) + '</span>' +
+      '<button class="btn small" data-i="' + i + '" type="button">恢复这份</button>' +
+    '</div>';
+  }).join('');
+  host.querySelectorAll('button[data-i]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var r = rows[+btn.dataset.i];
+      localStorage.setItem(STORE, JSON.stringify(r.data));
+      toast('已恢复 ' + r.date + ' 的数据');
+      setTimeout(function () { location.href = HOME; }, 700);
+    });
+  });
+  window.__rows = rows;
+}
+
+document.querySelector('#export-btn').addEventListener('click', function () {
+  var payload = { exportedAt: new Date().toISOString(), host: location.host, current: read(STORE), archive: read(ARCH) };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rgb-daily-backup-' + location.host + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+});
+document.querySelector('#import-file').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function () {
+    try {
+      var j = JSON.parse(fr.result);
+      if (j.current && contentKeys(j.current).length) {
+        localStorage.setItem(STORE, JSON.stringify(j.current));
+        toast('已导入并恢复当前数据');
+        setTimeout(function () { location.href = HOME; }, 700);
+      } else if (j.archive) {
+        localStorage.setItem(ARCH, JSON.stringify(j.archive));
+        toast('已导入归档快照，请选择日期恢复');
+        render();
+      } else toast('文件里没有可恢复的数据');
+    } catch (err) { toast('文件解析失败'); }
+  };
+  fr.readAsText(f);
+});
+
+render();
+</script>
+</body>
+</html>
