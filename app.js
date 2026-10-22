@@ -349,7 +349,7 @@ function initEditor() {
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(merged)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     const url = `${location.origin}${location.pathname.replace(/edit\.html$/, 'index.html')}?d=${encoded}`;
     if (copySync(url)) showToast('链接已复制，发给日报负责人即可');
-    else window.prompt('复制下面的链接，发给日报负责人：', url);
+    else showLinkPanel(url);
   });
   updateT1(data.reportDate);
   document.querySelector('[name="reportDate"]').addEventListener('input', e => updateT1(e.target.value));
@@ -657,6 +657,32 @@ function copySync(value) {
   try { ok = document.execCommand('copy'); } catch (e) {}
   ta.remove();
   return ok;
+}
+
+function showLinkPanel(url) {
+  const old = document.getElementById('link-panel'); if (old) old.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'link-panel';
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(20,19,17,.45);display:flex;align-items:center;justify-content:center;padding:24px';
+  wrap.innerHTML =
+    '<div style="background:#fff;border-radius:14px;padding:22px 24px;max-width:600px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22)">' +
+      '<div style="font-size:16px;font-weight:800;margin-bottom:6px">复制这个链接，发给日报负责人</div>' +
+      '<div style="font-size:12.5px;color:#7A766D;margin-bottom:14px;line-height:1.6">链接里已包含你填写的全部内容。已自动选中，按 ⌘C（Windows 按 Ctrl+C）即可复制。</div>' +
+      '<input id="link-input" readonly style="width:100%;font-size:12px;padding:10px 12px;border:1px solid #E6E2D9;border-radius:9px;outline:none;color:#1A1917">' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">' +
+        '<button id="link-retry" style="border:1px solid #E6E2D9;background:#fff;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer">再试一次复制</button>' +
+        '<button id="link-close" style="border:0;background:#1A1917;color:#fff;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer">关闭</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(wrap);
+  const input = wrap.querySelector('#link-input');
+  input.value = url; input.focus(); input.select();
+  wrap.querySelector('#link-close').onclick = () => wrap.remove();
+  wrap.querySelector('#link-retry').onclick = () => {
+    if (copySync(url)) { showToast('链接已复制，发给日报负责人即可'); wrap.remove(); }
+    else { input.focus(); input.select(); showToast('请按 ⌘C 复制'); }
+  };
+  wrap.addEventListener('click', e => { if (e.target === wrap) wrap.remove(); });
 }
 
 async function copyText(value, message) {
