@@ -134,7 +134,7 @@ function safeParse(raw) { try { return JSON.parse(raw) || {}; } catch { return {
 function readData({ autoAdvance = false } = {}) {
   const shared = new URLSearchParams(location.search).get('d');
   if (shared) {
-    try { return { ...defaultData(), ...JSON.parse(decodeURIComponent(escape(atob(shared.replace(/-/g, '+').replace(/_/g, '/'))))) }; } catch {}
+    try { return migrateLegacy({ ...defaultData(), ...JSON.parse(decodeURIComponent(escape(atob(shared.replace(/-/g, '+').replace(/_/g, '/'))))) }); } catch {}
   }
   const saved = safeParse(localStorage.getItem(STORAGE_KEY));
   const today = localDateKey();
@@ -148,7 +148,30 @@ function readData({ autoAdvance = false } = {}) {
     if (hadContent && saved._autoDateStamp) dayChangedTo = today;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
-  return data;
+  return migrateLegacy(data);
+}
+
+/* 旧字段迁移：红书/B站/抖音改版后 key 变了，把历史填写过的值回填到新字段，避免数据显示为空白 */
+function migrateLegacy(data) {
+  const out = { ...data };
+  const snapshot = (() => {
+    try { return (JSON.parse(localStorage.getItem('rgb-daily-archive-v1')) || {})[data.reportDate] || {}; } catch { return {}; }
+  })();
+  const src = { ...snapshot, ...data };
+  const num = value => parseMetricNumber(value);
+  const setIfEmpty = (key, value) => { if (!has(out[key]) && value !== null && value !== undefined) out[key] = String(value); };
+  const sum = (a, b) => {
+    const x = num(a), y = num(b);
+    if (x === null && y === null) return null;
+    return (x || 0) + (y || 0);
+  };
+  setIfEmpty('redbookTotalPlan', sum(src.redbookPlanKol, src.redbookPlanKoc));
+  setIfEmpty('redbookTotalOnline', num(src.redbookOnline));
+  setIfEmpty('biliTotalPlan', num(src.biliPlanKol));
+  setIfEmpty('biliTotalOnline', num(src.biliOnline));
+  setIfEmpty('douyinTotalPlan', num(src.douyinPlanKol));
+  setIfEmpty('douyinTotalOnline', num(src.douyinOnline));
+  return out;
 }
 function parseMetricNumber(value) {
   if (!has(value)) return null;
@@ -195,8 +218,10 @@ function withTrendHistory(data, previous = {}, capture = false) {
 }
 function writeData(data, captureTrends = false) {
   const previous = safeParse(localStorage.getItem(STORAGE_KEY));
+  // 表单里没有的历史字段（如改版前的进店/GMV/费用）要保留，不能被自动保存抹掉
+  const merged = { ...previous, ...data };
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(data, previous, captureTrends), _autoDateStamp: localDateKey() }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(merged, previous, captureTrends), _autoDateStamp: localDateKey() }));
   } catch {
     showToast('本地空间不足，请移除部分截图后再保存');
   }
