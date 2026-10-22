@@ -68,8 +68,15 @@
     var arch = readArch();
     var set = {};
     Object.keys(arch).forEach(function (k) { set[k] = 1; });
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+    var hasContent = Object.keys(saved).some(function (k) {
+      if (k.charAt(0) === '_') return false;
+      if (['reportDate', 'productName', 'owner', 'stage'].indexOf(k) >= 0) return false;
+      return saved[k] !== '' && saved[k] !== null && saved[k] !== undefined;
+    });
     var m = location.hash.match(/[#&]date=(\d{4}-\d{2}-\d{2})/);
-    var cur = m ? m[1] : (JSON.parse(localStorage.getItem(STORE) || '{}').reportDate || today());
+    var cur = m ? m[1] : (saved.reportDate || today());
     set[cur] = 1; set[today()] = 1;
     var list = Object.keys(set).sort().reverse();
 
@@ -80,8 +87,8 @@
         (mf.dates || []).forEach(function (d) { if (list.indexOf(d) < 0) list.push(d); });
         list.sort().reverse();
         build(list, cur);
-        if (m && m[1] !== cur) go(m[1]);
-        else if (m) go(m[1]);
+        // 本地没有任何填写内容时，自动加载该日期的归档数据（外发链接首次打开也能看到内容）
+        if (m || !hasContent) go(cur);
       });
   }
 

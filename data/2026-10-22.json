@@ -3,7 +3,7 @@
   "productName": "Vidda发现X RGB",
   "owner": "",
   "stage": "上市期",
-  "modelSearch": "",
+  "modelSearch": "289",
   "modelSearchDoD": "",
   "modelSearchDailyRate": "",
   "modelSearchMonthlyRate": "",
@@ -12,25 +12,23 @@
   "detailDuration": "49秒",
   "detailDurationBenchmark": "54秒",
 
-  "redbookPlanKol": "2",
-  "redbookPlanKoc": "8",
-  "redbookOnline": "10",
-  "redbookStore": "51.53",
-  "redbookDoD": "-23",
-  "redbookGmv": "",
-  "redbookCost": "",
+  "redbookTotalPlan": "10",
+  "redbookTodayPlan": "",
+  "redbookTotalOnline": "10",
+  "redbookTodayOnline": "",
+  "redbookHealth": "正常",
 
-  "biliPlanKol": "10",
-  "biliOnline": "3",
-  "biliStore": "",
-  "biliDoD": "",
-  "biliGmv": "",
-  "biliCost": "",
+  "biliTotalPlan": "10",
+  "biliTodayPlan": "",
+  "biliTotalOnline": "3",
+  "biliTodayOnline": "",
+  "biliHealth": "滞后",
 
-  "douyinPlanKol": "3",
-  "douyinOnline": "3",
-  "douyinGmv": "",
-  "douyinCost": "",
+  "douyinTotalPlan": "3",
+  "douyinTodayPlan": "",
+  "douyinTotalOnline": "3",
+  "douyinTodayOnline": "",
+  "douyinHealth": "正常",
 
   "geoQuestion": "RGB–Mini LED 电视推荐 / 护眼电视推荐",
   "geoArticles": "4",
@@ -54,5 +52,14 @@
 
   "trafficAdjustment": "",
   "reputationAdjustment": "",
-  "trafficDiagnosis": "搜索点击率 4.70%（发现X 2027 同期 20.38%），平均停留时长 49秒（同期 54秒）——目前发现X RGB 流量主要来自 85寸电视、电视机、电视等行业大词，流量不精准，CTR 与停留时长均明显低于同期竞品。\n小红书搜索指数 180、环比 ▲28%，但单日 CPUV 51.53、环比 ▼23%，属「搜索起量、进店转化未跟上」，重点看首图与笔记落地页的一致性。\n抖音新增 A3 5 万，星图刚上线仍处冷启，48 小时内看跑量再看 A3 成本。\nB站视频上线 3/10 期，动态宣传 17 条已全部发出，点赞 165、评论 18。\nGEO 已审 4/40 篇，露出率数据尚未回收，暂无法判断。"
+  "trafficDiagnosis": "搜索点击率 4.70%（发现X 2027 同期 20.38%），平均停留时长 49秒（同期 54秒）——目前发现X RGB 流量主要来自 85寸电视、电视机、电视等行业大词，流量不精准，CTR 与停留时长均明显低于同期竞品。\n型号词搜索连续爬坡，10/18–10/21 为 149 / 167 / 228 / 289，心智在缓慢建立。\n小红书搜索指数 180、环比 ▲28%，但单日 CPUV 51.53、环比 ▼23%，属「搜索起量、进店转化未跟上」，重点看首图与笔记落地页的一致性。\n抖音新增 A3 5 万，星图刚上线仍处冷启，48 小时内看跑量再看 A3 成本。\nB站视频上线 3/10 期，动态宣传 17 条已全部发出，点赞 165、评论 18。\nGEO 已审 4/40 篇，露出率数据尚未回收，暂无法判断。",
+
+  "_trends": {
+    "modelSearch": [
+      { "date": "2026-10-18", "value": 149 },
+      { "date": "2026-10-19", "value": 167 },
+      { "date": "2026-10-20", "value": 228 },
+      { "date": "2026-10-21", "value": 289 }
+    ]
+  }
 }

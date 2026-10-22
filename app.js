@@ -28,25 +28,21 @@ const FIELD_SECTIONS = [
   {
     id: 'actions', title: '数字营销', desc: '三个渠道分别记录计划、上线、进店与成交表现。',
     fields: [
-      ['redbookPlanKol', '红书 · 计划 KOL', 'number', '位'],
-      ['redbookPlanKoc', '红书 · 计划 KOC', 'number', '位'],
-      ['redbookOnline', '红书 · 已上线', 'number', '篇'],
-      ['redbookStore', '红书 · 进店次数', 'number', '次'],
-      ['redbookDoD', '红书 · 进店日环比', 'number', '%'],
-      ['redbookGmv', '红书 · 成交 GMV', 'text', '如：12.6 万'],
-      ['redbookCost', '红书 · 费用消耗进度', 'number', '%'],
-      ['biliPlanKol', 'B站 · 计划 KOL', 'number', '位'],
-      ['biliOnline', 'B站 · 已上线', 'number', '条'],
-      ['biliStore', 'B站 · 进店次数', 'number', '次'],
-      ['biliDoD', 'B站 · 进店日环比', 'number', '%'],
-      ['biliGmv', 'B站 · 成交 GMV', 'text', '如：8.3 万'],
-      ['biliCost', 'B站 · 费用消耗进度', 'number', '%'],
-      ['douyinPlanKol', '抖音 · 计划 KOL', 'number', '位'],
-      ['douyinOnline', '抖音 · 已上线', 'number', '条'],
-      ['douyinA3', '抖音 · 新增 A3', 'text', '数据或简述'],
-      ['douyinA3DoD', '抖音 · A3 日环比', 'number', '%'],
-      ['douyinGmv', '抖音 · 成交 GMV', 'text', '如：15.2 万'],
-      ['douyinCost', '抖音 · 费用消耗进度', 'number', '%'],
+      ['redbookTotalPlan', '红书 · 总计划', 'number', '篇'],
+      ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'],
+      ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'],
+      ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'],
+      ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']],
+      ['biliTotalPlan', 'B站 · 总计划', 'number', '条'],
+      ['biliTodayPlan', 'B站 · 今日计划', 'number', '条'],
+      ['biliTotalOnline', 'B站 · 总上线', 'number', '条'],
+      ['biliTodayOnline', 'B站 · 今日上线', 'number', '条'],
+      ['biliHealth', 'B站 · 健康度', 'select', ['正常', '滞后']],
+      ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'],
+      ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'],
+      ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'],
+      ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'],
+      ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']],
       ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'],
       ['geoArticles', 'GEO · 发文', 'number', '篇'],
       ['geoExposure', 'GEO · 露出率', 'number', '%'],
@@ -90,20 +86,20 @@ const MODULE_SECTIONS = [
   { id: 'basic', title: '基本信息', desc: '日报日期会自动推导 T-1 数据日期。', fields: [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
-  { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%']
+  { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'], ['modelShot', '后台原生截图', 'image']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
   ]},
-  { id: 'redbook', title: '红书', desc: '填写红书计划、上线、进店、成交与费用进度。', fields: [
-    ['redbookPlanKol', '红书 · 计划 KOL', 'number', '位'], ['redbookPlanKoc', '红书 · 计划 KOC', 'number', '位'], ['redbookOnline', '红书 · 已上线', 'number', '篇'], ['redbookStore', '红书 · 进店次数', 'number', '次'], ['redbookDoD', '红书 · 进店日环比', 'number', '%'], ['redbookGmv', '红书 · 成交 GMV', 'text', '如：12.6 万'], ['redbookCost', '红书 · 费用消耗进度', 'number', '%']
+  { id: 'redbook', title: '红书', desc: '填写红书总计划、今日计划、总上线、今日上线与健康度。', fields: [
+    ['redbookTotalPlan', '红书 · 总计划', 'number', '篇'], ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'], ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'], ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'], ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']]
   ]},
-  { id: 'bilibili', title: 'B站', desc: '填写 B 站计划、上线、进店、成交与费用进度。', fields: [
-    ['biliPlanKol', 'B站 · 计划 KOL', 'number', '位'], ['biliOnline', 'B站 · 已上线', 'number', '条'], ['biliStore', 'B站 · 进店次数', 'number', '次'], ['biliDoD', 'B站 · 进店日环比', 'number', '%'], ['biliGmv', 'B站 · 成交 GMV', 'text', '如：8.3 万'], ['biliCost', 'B站 · 费用消耗进度', 'number', '%']
+  { id: 'bilibili', title: 'B站', desc: '填写 B 站总计划、今日计划、总上线、今日上线与健康度。', fields: [
+    ['biliTotalPlan', 'B站 · 总计划', 'number', '条'], ['biliTodayPlan', 'B站 · 今日计划', 'number', '条'], ['biliTotalOnline', 'B站 · 总上线', 'number', '条'], ['biliTodayOnline', 'B站 · 今日上线', 'number', '条'], ['biliHealth', 'B站 · 健康度', 'select', ['正常', '滞后']]
   ]},
-  { id: 'douyin', title: '抖音', desc: '填写抖音计划、上线、新增 A3、成交与费用进度。', fields: [
-    ['douyinPlanKol', '抖音 · 计划 KOL', 'number', '位'], ['douyinOnline', '抖音 · 已上线', 'number', '条'], ['douyinA3', '抖音 · 新增 A3', 'text', '数据或简述'], ['douyinA3DoD', '抖音 · A3 日环比', 'number', '%'], ['douyinGmv', '抖音 · 成交 GMV', 'text', '如：15.2 万'], ['douyinCost', '抖音 · 费用消耗进度', 'number', '%']
+  { id: 'douyin', title: '抖音', desc: '填写抖音总计划、今日计划、总上线、今日上线与健康度。', fields: [
+    ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'], ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'], ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'], ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'], ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']]
   ]},
   { id: 'geo', title: 'GEO', desc: '填写 GEO 核心问题、发文及露出率。', fields: [
     ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'], ['geoArticles', 'GEO · 发文', 'number', '篇'], ['geoExposure', 'GEO · 露出率', 'number', '%']
@@ -118,7 +114,7 @@ const MODULE_SECTIONS = [
     ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'], ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
   ]},
   { id: 'diagnosis', title: '流量诊断', desc: '记录流量异常、机会点与关键结论。', fields: [
-    ['trafficDiagnosis', '流量 · 当日诊断', 'textarea', '异常原因、机会点或关键结论']
+    ['trafficDiagnosis', '流量 · 当日诊断', 'textarea', '异常原因、机会点或关键结论'], ['diagShot', '诊断原生截图', 'image']
   ]}
 ];
 
@@ -199,7 +195,11 @@ function withTrendHistory(data, previous = {}, capture = false) {
 }
 function writeData(data, captureTrends = false) {
   const previous = safeParse(localStorage.getItem(STORAGE_KEY));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(data, previous, captureTrends), _autoDateStamp: localDateKey() }));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(data, previous, captureTrends), _autoDateStamp: localDateKey() }));
+  } catch {
+    showToast('本地空间不足，请移除部分截图后再保存');
+  }
 }
 const CAMPAIGN = { label: '双十一', start: '2026-10-07', end: '2026-11-11' };
 function campaignProgress(dateStr) {
@@ -262,10 +262,10 @@ function trendPanel(key, data, opts = {}) {
   const width = opts.width || 760;
 
   if (!points.length) {
-    return `<details class="trend-panel"><summary><span><b>日趋势图</b><small>最近 7 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-empty">填写${cfg.label}数据后，将自动生成每日趋势折线图</div></details>`;
+    return `<details class="trend-panel"${opts.open ? ' open' : ''}><summary><span><b>日趋势图</b><small>最近 7 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-empty">填写${cfg.label}数据后，将自动生成每日趋势折线图</div></details>`;
   }
 
-  const height = 230, left = 56, right = 18, top = 24, bottom = 44;
+  const height = opts.height || 230, left = 56, right = 18, top = 24, bottom = 44;
   const values = points.map(point => point.value);
   let min = Math.min(...values), max = Math.max(...values);
   const padding = Math.max((max - min) * .18, max * .08, 1);
@@ -287,7 +287,7 @@ function trendPanel(key, data, opts = {}) {
     return `<g class="trend-point"><circle cx="${px}" cy="${py}" r="5"><title>${dateLabel} · ${shown}</title></circle><text class="trend-value" x="${px}" y="${py-12}" text-anchor="middle">${shown}</text><text class="trend-date" x="${px}" y="${height-16}" text-anchor="middle">${dateLabel}</text></g>`;
   }).join('');
   const latest = points[points.length - 1];
-  return `<details class="trend-panel"><summary><span><b>日趋势图</b><small>最近 ${points.length} 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-chart-head"><span>${cfg.label}</span><b>最新 ${cfg.fmt(latest.value)}</b></div><div class="trend-chart-scroll"><svg class="trend-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${cfg.label}最近 ${points.length} 天趋势折线图"><g class="trend-grid">${grid}</g><path class="trend-area" d="${path} L ${x(points.length-1).toFixed(1)} ${height-bottom} L ${x(0).toFixed(1)} ${height-bottom} Z"/><path class="trend-line" d="${path}"/>${marks}</svg></div></details>`;
+  return `<details class="trend-panel${opts.large ? ' trend-panel-lg' : ''}"${opts.open ? ' open' : ''}><summary><span><b>日趋势图</b><small>最近 ${points.length} 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-chart-head"><span>${cfg.label}</span><b>最新 ${cfg.fmt(latest.value)}</b></div><div class="trend-chart-scroll"><svg class="trend-chart${opts.large ? ' trend-chart-lg' : ''}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${cfg.label}最近 ${points.length} 天趋势折线图"><g class="trend-grid">${grid}</g><path class="trend-area" d="${path} L ${x(points.length-1).toFixed(1)} ${height-bottom} L ${x(0).toFixed(1)} ${height-bottom} Z"/><path class="trend-line" d="${path}"/>${marks}</svg></div></details>`;
 }
 
 function initEditor() {
@@ -315,6 +315,7 @@ function initEditor() {
     picker.value = id;
   };
   picker.addEventListener('change', e => showModule(e.target.value));
+  bindShotFields(form, () => saveForm(false, true));
   const dayResetBtn = document.querySelector('#day-reset');
   if (dayResetBtn) dayResetBtn.addEventListener('click', () => {
     if (!confirm('清空上一次填写的数据？历史趋势记录会保留。')) return;
@@ -364,6 +365,7 @@ function initEditor() {
 
 function fieldHtml([name, label, type, meta], data) {
   const full = type === 'textarea';
+  if (type === 'image') return `<div class="field full shot-field" data-shot="${name}"><label>${label}</label><input type="hidden" id="${name}" name="${name}" value="${esc(data[name] || '')}"><div class="shot-preview"></div><label class="shot-btn">上传截图<input type="file" accept="image/*" hidden></label></div>`;
   if (type === 'select') return `<div class="field"><label for="${name}">${label}</label><select id="${name}" name="${name}">${meta.map(x => `<option ${data[name]===x?'selected':''}>${x}</option>`).join('')}</select></div>`;
   if (type === 'textarea') return `<div class="field full"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" placeholder="${esc(meta || '')}">${esc(data[name] || '')}</textarea></div>`;
   if (type === 'number' && meta) return `<div class="field"><label for="${name}">${label}</label><div class="unit-input"><input id="${name}" name="${name}" type="number" step="any" value="${esc(data[name] || '')}" placeholder="0"><span>${esc(meta)}</span></div></div>`;
@@ -371,6 +373,56 @@ function fieldHtml([name, label, type, meta], data) {
 }
 
 function updateT1(date) { const el = document.querySelector('#t1-hint'); if (el) el.textContent = `本日报采集 ${formatDate(tMinusOne(date), true)}（T-1）数据`; }
+
+function shrinkImage(file, maxWidth = 1280, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('decode failed'));
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function bindShotFields(form, persist) {
+  form.querySelectorAll('.shot-field').forEach(field => {
+    const hidden = field.querySelector('input[type=hidden]');
+    const fileInput = field.querySelector('input[type=file]');
+    const preview = field.querySelector('.shot-preview');
+    const paint = () => {
+      preview.innerHTML = hidden.value
+        ? `<img src="${esc(hidden.value)}" alt="截图预览"><button type="button" class="shot-remove">移除</button>`
+        : '';
+      const remove = preview.querySelector('.shot-remove');
+      if (remove) remove.addEventListener('click', () => { hidden.value = ''; paint(); persist(); showToast('截图已移除'); });
+    };
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      try {
+        hidden.value = await shrinkImage(file);
+        paint();
+        persist();
+        showToast('截图已添加');
+      } catch {
+        showToast('图片处理失败，换一张试试');
+      }
+      fileInput.value = '';
+    });
+    paint();
+  });
+}
 
 function initReport() {
   const root = document.querySelector('#report-root');
@@ -394,7 +446,8 @@ function initReport() {
             ${metric('日完成率', val(d, 'modelSearchDailyRate', '%'))}
             ${metric('10 月累完成率', val(d, 'modelSearchMonthlyRate', '%'))}
           </div>
-          ${trendPanel('modelSearch', d)}
+          ${trendPanel('modelSearch', d, { width: 900, height: 300, large: true, open: true })}
+          ${shotBlock(d.modelShot)}
         </div>
         <div class="metric-group secondary">
           <div class="metric-group-label">搜索与商详表现</div>
@@ -414,9 +467,9 @@ function initReport() {
     <section class="card">
       <div class="card-head"><div><div class="card-kicker">02 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
       <div class="channel-grid">
-        ${channel('红书', d, 'redbook', { showKoc: true })}
-        ${channel('B站', d, 'bili')}
-        ${channel('抖音', d, 'douyin', { storeKey: 'douyinA3', dodKey: 'douyinA3DoD', storeLabel: '新增 A3', storeUnit: '', dodLabel: 'A3 日环比' })}
+        ${channel('红书', d, 'redbook', { unit: ' 篇' })}
+        ${channel('B站', d, 'bili', { unit: ' 条' })}
+        ${channel('抖音', d, 'douyin', { unit: ' 条' })}
         ${geoChannel(d)}
       </div>
       <div class="subsection">
@@ -450,8 +503,13 @@ function initReport() {
     <section class="card">
       <div class="card-head"><div><div class="card-kicker">05 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
       ${noteBlock('当日诊断', d.trafficDiagnosis, 'note')}
+      ${shotBlock(d.diagShot)}
     </section>
   `;
+
+  root.querySelectorAll('.shot-view img').forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.src));
+  });
 
   document.querySelector('#copy-btn').addEventListener('click', () => copyText(toPlainText(d), '日报文案已复制'));
   document.querySelector('#share-btn').addEventListener('click', () => {
@@ -503,36 +561,46 @@ async function exportReportImage(data) {
   }
 }
 
+function healthChip(v) {
+  if (!has(v)) return '';
+  return `<span class="health-chip ${v === '滞后' ? 'lag' : 'ok'}">${esc(v)}</span>`;
+}
 function channel(name, d, key, opts = {}) {
-  const { showKoc = false, storeKey = `${key}Store`, dodKey = `${key}DoD`, storeLabel = '进店次数', storeUnit = ' 次', dodLabel = '进店日环比' } = opts;
+  const unit = opts.unit || ' 条';
+  const stat = (label, field) => `<div class="channel-stat"><span>${label}</span><b>${val(d, `${key}${field}`, unit)}</b></div>`;
   return `<div class="channel-card">
-    <div class="channel-name"><i class="dot"></i>${name}</div>
+    <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`])}</div>
     <div class="channel-stats">
-      <div class="channel-stat"><span>计划 KOL</span><b>${val(d,`${key}PlanKol`,' 位')}</b></div>
-      ${showKoc?`<div class="channel-stat"><span>计划 KOC</span><b>${val(d,`${key}PlanKoc`,' 位')}</b></div>`:''}
-      <div class="channel-stat"><span>已上线</span><b>${val(d,`${key}Online`,' 条')}</b></div>
-      <div class="channel-stat"><span>${storeLabel}</span><b>${val(d, storeKey, storeUnit)}</b></div>
-      <div class="channel-stat"><span>${dodLabel}</span><b>${trend(d[dodKey])}</b></div>
-      <div class="channel-stat"><span>成交 GMV</span><b>${val(d,`${key}Gmv`)}</b></div>
-      ${costStat(d, key)}
+      ${stat('总计划', 'TotalPlan')}
+      ${stat('今日计划', 'TodayPlan')}
+      ${stat('总上线', 'TotalOnline')}
+      ${stat('今日上线', 'TodayOnline')}
     </div>
   </div>`;
-}
-function costStat(d, key) {
-  const raw = d[`${key}Cost`];
-  const num = parseMetricNumber(raw);
-  const pct = num === null ? 0 : Math.max(0, Math.min(100, num));
-  return `<div class="channel-stat wide cost-stat"><span>费用消耗进度</span><b>${val(d, `${key}Cost`, '%')}</b>${num !== null ? `<div class="cost-bar"><i style="width:${pct}%"></i></div>` : ''}</div>`;
 }
 function geoChannel(d) {
   return `<div class="channel-card">
     <div class="channel-name"><i class="dot"></i>GEO</div>
-    <div class="channel-stats">
+    <div class="channel-stats geo-stats">
       <div class="channel-stat wide"><span>核心问题</span><b>${textOrEmpty(d.geoQuestion)}</b></div>
       <div class="channel-stat"><span>发文</span><b>${val(d,'geoArticles',' 篇')}</b></div>
       <div class="channel-stat"><span>露出率</span><b>${val(d,'geoExposure','%')}</b></div>
     </div>
   </div>`;
+}
+function shotBlock(raw) {
+  if (!has(raw) || !String(raw).startsWith('data:image')) return '';
+  return `<div class="shot-view"><img src="${esc(raw)}" alt="原生截图"></div>`;
+}
+function openLightbox(src) {
+  const old = document.getElementById('shot-lightbox');
+  if (old) old.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'shot-lightbox';
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(16,15,14,.82);display:flex;align-items:center;justify-content:center;padding:32px;cursor:zoom-out';
+  wrap.innerHTML = `<img src="${esc(src)}" style="max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,.4)">`;
+  wrap.addEventListener('click', () => wrap.remove());
+  document.body.appendChild(wrap);
 }
 function actionCard(d) {
   const items = [
@@ -597,18 +665,13 @@ function toPlainText(d) {
   const name = d.productName || 'Vidda发现X RGB';
 
   const chLine = (label, key, opts = {}) => {
-    const storeKey = opts.storeKey || `${key}Store`;
-    const dodKey = opts.dodKey || `${key}DoD`;
-    const storeSeg = has(d[storeKey]) || has(d[dodKey])
-      ? `${opts.storeLabel || '进店'}${has(d[storeKey]) ? ` ${d[storeKey]}${opts.storeUnit || ''}` : ''}${has(d[dodKey]) ? `（${trRaw(d[dodKey])}）` : ''}`
-      : '';
+    const unit = opts.unit || ' 条';
     const line = bits([
-      item('KOL', d[`${key}PlanKol`], ' 位'),
-      opts.koc && item('KOC', d[`${key}PlanKoc`], ' 位'),
-      item('上线', d[`${key}Online`], opts.onlineUnit || ''),
-      storeSeg,
-      item('成交GMV', d[`${key}Gmv`]),
-      item('费用消耗', d[`${key}Cost`], '%')
+      item('总计划', d[`${key}TotalPlan`], unit),
+      item('今日计划', d[`${key}TodayPlan`], unit),
+      item('总上线', d[`${key}TotalOnline`], unit),
+      item('今日上线', d[`${key}TodayOnline`], unit),
+      item('健康度', d[`${key}Health`])
     ]);
     return line ? `${label}：${line}` : '';
   };
@@ -628,9 +691,9 @@ function toPlainText(d) {
         bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [
-        chLine('红书', 'redbook', { koc: true, onlineUnit: ' 篇' }),
-        chLine('B站', 'bili', { onlineUnit: ' 条' }),
-        chLine('抖音', 'douyin', { storeKey: 'douyinA3', storeLabel: '新增A3', storeUnit: '', dodKey: 'douyinA3DoD', onlineUnit: ' 条' }),
+        chLine('红书', 'redbook', { unit: ' 篇' }),
+        chLine('B站', 'bili'),
+        chLine('抖音', 'douyin'),
         geoBits && `GEO：${geoBits}`,
         has(d.geoQuestion) ? `GEO 核心问题：${d.geoQuestion}` : '',
         contentBits && `站内内容：${contentBits}`
