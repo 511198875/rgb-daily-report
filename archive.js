@@ -10,11 +10,20 @@
   function readArch() { try { return JSON.parse(localStorage.getItem(ARCH)) || {}; } catch (e) { return {}; } }
   function writeArch(a) { try { localStorage.setItem(ARCH, JSON.stringify(a)); } catch (e) {} }
 
-  // 把当前 localStorage 里的日报按「日报日期」存一份本地快照
+  // 判断一份数据里有没有实际填写内容（不含日期/产品名等基础字段和内部字段）
+  function hasContent(d) {
+    if (!d) return false;
+    var base = ['reportDate', 'productName', 'owner', 'stage'];
+    return Object.keys(d).some(function (k) {
+      return k.charAt(0) !== '_' && base.indexOf(k) < 0 && String(d[k]).trim() !== '';
+    });
+  }
+
+  // 把当前 localStorage 里的日报按「日报日期」存一份本地快照（空数据不存）
   function snapshot() {
     try {
       var d = JSON.parse(localStorage.getItem(STORE) || '{}');
-      if (!d || !d.reportDate) return;
+      if (!d || !d.reportDate || !hasContent(d)) return;
       var a = readArch();
       var prev = a[d.reportDate] || {};
       a[d.reportDate] = Object.assign({}, prev, d);
@@ -34,12 +43,15 @@
 
   function go(date) {
     var a = readArch();
-    if (a[date]) { render(date, a[date]); return; }
+    var snap = a[date];
+    if (snap && hasContent(snap)) { render(date, snap); return; }
+    // 本地快照为空时仍去拉归档数据，避免被空快照挡住
     fetch('data/' + date + '.json', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; })
       .then(function (j) {
-        render(date, j || { reportDate: date, productName: 'Vidda发现X RGB', stage: '上市期' });
+        if (j) render(date, Object.assign({}, snap || {}, j));
+        else render(date, snap || { reportDate: date, productName: 'Vidda发现X RGB', stage: '上市期' });
       });
   }
 
@@ -70,11 +82,7 @@
     Object.keys(arch).forEach(function (k) { set[k] = 1; });
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
-    var hasContent = Object.keys(saved).some(function (k) {
-      if (k.charAt(0) === '_') return false;
-      if (['reportDate', 'productName', 'owner', 'stage'].indexOf(k) >= 0) return false;
-      return saved[k] !== '' && saved[k] !== null && saved[k] !== undefined;
-    });
+    var local = hasContent(saved);
     var m = location.hash.match(/[#&]date=(\d{4}-\d{2}-\d{2})/);
     var cur = m ? m[1] : (saved.reportDate || today());
     set[cur] = 1; set[today()] = 1;
@@ -88,7 +96,7 @@
         list.sort().reverse();
         build(list, cur);
         // 本地没有任何填写内容时，自动加载该日期的归档数据（外发链接首次打开也能看到内容）
-        if (m || !hasContent) go(cur);
+        if (m || !local) go(cur);
       });
   }
 
