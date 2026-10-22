@@ -103,7 +103,7 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .trend-chart-head b { color: var(--ink); font-size: 14px; }
 .trend-chart-scroll { overflow-x: auto; padding: 0 8px 6px; }
 .trend-chart { display: block; width: 100%; min-width: 560px; height: 210px; overflow: visible; }
-.trend-chart-lg { min-width: 460px; max-width: 600px; height: 300px; }
+.trend-chart-lg { min-width: 720px; height: 205px; }
 .trend-chart-lg .trend-grid text, .trend-chart-lg .trend-date { font-size: 13px; }
 .trend-chart-lg .trend-value { font-size: 14px; }
 .trend-chart-lg .trend-line { stroke-width: 3.5; }
@@ -159,6 +159,9 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .card-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .time-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: #eef2ff; color: #2357ff; font-size: 11px; font-weight: 750; letter-spacing: 0; white-space: nowrap; }
 .neg-pie-wrap { display: flex; align-items: center; gap: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+.insight-row { display: flex; gap: 16px; align-items: center; }
+.insight-row .neg-pie-wrap { flex: 0 0 58%; min-width: 0; }
+.insight-row .note { flex: 1; min-width: 0; }
 .neg-total { flex: 0 0 auto; padding-right: 24px; margin-right: -4px; border-right: 1px solid var(--line); min-width: 108px; }
 .neg-total span { display: block; color: var(--muted); font-size: 11px; line-height: 1.3; }
 .neg-total b { display: block; margin-top: 7px; color: #343842; font-size: 30px; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
@@ -197,6 +200,10 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .shot-view.voice { flex-direction: row; flex-wrap: wrap; }
 .shot-view.voice img { height: 200px; width: auto; max-width: 400px; object-fit: contain; background: #fff; border-radius: 10px; }
 .num-hl { font-weight: 800; color: #191817; background: #ffe9a8; padding: 0 3px; border-radius: 3px; }
+#rich-bar { position: absolute; z-index: 260; display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0, 0, 0, .16); }
+#rich-bar button { border: 0; background: #f4f3f0; border-radius: 7px; padding: 4px 10px; font-size: 12px; font-weight: 750; cursor: pointer; }
+#rich-bar button[data-c="#d8382f"] { color: #d8382f; }
+#rich-bar button[data-c="#2357ff"] { color: #2357ff; }
 .shot-field { gap: 8px; }
 .shot-preview { display: flex; flex-wrap: wrap; gap: 10px; }
 .shot-thumb { position: relative; display: inline-block; }

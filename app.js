@@ -489,7 +489,7 @@ function fieldHtml([name, label, type, meta], data) {
   const full = type === 'textarea' || type === 'image' || type === 'images';
   if (type === 'image' || type === 'images') return `<div class="field full shot-field" data-shot="${name}"><label>${label}${type === 'images' ? '（可传多张）' : ''}</label><input type="hidden" id="${name}" name="${name}" value="${esc(data[name] || '')}"><div class="shot-preview"></div><label class="shot-btn">上传截图<input type="file" accept="image/*"${type === 'images' ? ' multiple' : ''} hidden></label></div>`;
   if (type === 'select') return `<div class="field"><label for="${name}">${label}</label><select id="${name}" name="${name}">${meta.map(x => `<option ${data[name]===x?'selected':''}>${x}</option>`).join('')}</select></div>`;
-  if (type === 'textarea') return `<div class="field full"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" placeholder="${esc(meta || '')}">${esc(data[name] || '')}</textarea></div>`;
+  if (type === 'textarea') return `<div class="field full"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" placeholder="${esc(meta || '')}">${esc(stripTags(data[name] || ''))}</textarea></div>`;
   if (type === 'number' && meta) return `<div class="field"><label for="${name}">${label}</label><div class="unit-input"><input id="${name}" name="${name}" type="number" step="any" value="${esc(data[name] || '')}" placeholder="0"><span>${esc(meta)}</span></div></div>`;
   return `<div class="field ${full?'full':''}"><label for="${name}">${label}</label><input id="${name}" name="${name}" type="${type}" value="${esc(data[name] || '')}" placeholder="${esc(meta || '')}"></div>`;
 }
@@ -584,7 +584,7 @@ function initReport() {
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
             ${metric('10月目标完成率（10.21日-10.31日）', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
           </div>
-          ${trendPanel('modelSearch', d, { width: 600, height: 300, large: true, open: true })}
+          ${trendPanel('modelSearch', d, { width: 900, height: 200, large: true, open: true })}
           ${shotBlock(d.modelShot)}
         </div>
         <div class="metric-group secondary">
@@ -632,8 +632,10 @@ function initReport() {
       </div>
       <div class="subsection">
         <div class="subsection-title"><span>评论区用户声音洞察</span><small>NEGATIVE INSIGHTS</small></div>
-        ${negativePie(d)}
-        ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary', 'margin-top:14px')}
+        <div class="insight-row">
+          ${negativePie(d)}
+          ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary')}
+        </div>
       </div>
       ${(() => { const g = shotBlock(d.voiceGoodShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>正面原声</span><small>POSITIVE VOICE</small></div>${g}</div>` : ''; })()}
       ${(() => { const g = shotBlock(d.voiceNeutralShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>中性原声</span><small>NEUTRAL VOICE</small></div>${g}</div>` : ''; })()}
@@ -642,7 +644,7 @@ function initReport() {
     ${actionCard(d)}
     <section class="card">
       <div class="card-head"><div><div class="card-kicker">05 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
-      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${hlNums(d.trafficDiagnosis)}</span></div>
+      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
       ${shotBlock(d.diagShot)}
     </section>
   `;
@@ -650,6 +652,8 @@ function initReport() {
   root.querySelectorAll('.shot-view img').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.src));
   });
+  const diagNote = root.querySelector('[data-field="trafficDiagnosis"]');
+  if (diagNote) bindRichBar(diagNote);
 
   document.querySelector('#copy-btn').addEventListener('click', () => copyText(toPlainText(d), '日报文案已复制'));
   document.querySelector('#share-btn').addEventListener('click', () => {
@@ -755,8 +759,41 @@ function shotBlock(raw, cls = '') {
   if (!list.length) return '';
   return `<div class="shot-view${cls ? ` ${cls}` : ''}">${list.map(src => `<img src="${esc(src)}" alt="原生截图">`).join('')}</div>`;
 }
-function openLightbox(src) {
-  const old = document.getElementById('shot-lightbox');
+function bindRichBar(note) {
+  let bar = document.getElementById('rich-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'rich-bar';
+    bar.innerHTML = '<button type="button" data-c="#d8382f">红</button><button type="button" data-c="#2357ff">蓝</button><button type="button" data-c="clear">清除</button>';
+    document.body.appendChild(bar);
+    bar.addEventListener('mousedown', event => event.preventDefault());
+    bar.addEventListener('click', event => {
+      const btn = event.target.closest('button');
+      if (!btn) return;
+      const sel = window.getSelection();
+      if (!sel.rangeCount || sel.isCollapsed) { bar.hidden = true; return; }
+      document.execCommand('styleWithCSS', false, false);
+      if (btn.dataset.c === 'clear') document.execCommand('removeFormat');
+      else { document.execCommand('bold'); document.execCommand('foreColor', false, btn.dataset.c); }
+      commitField('trafficDiagnosis', normalizeDiagnosis(note.innerHTML));
+      bar.hidden = true;
+      sel.removeAllRanges();
+    });
+  }
+  const place = () => {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) { bar.hidden = true; return; }
+    const range = sel.getRangeAt(0);
+    if (!note.contains(range.commonAncestorContainer)) { bar.hidden = true; return; }
+    const rect = range.getBoundingClientRect();
+    bar.hidden = false;
+    bar.style.top = `${Math.max(8, rect.top + window.scrollY - 44)}px`;
+    bar.style.left = `${Math.max(12, rect.left + window.scrollX + rect.width / 2 - 70)}px`;
+  };
+  document.addEventListener('selectionchange', place);
+  window.addEventListener('scroll', () => { bar.hidden = true; }, { passive: true });
+}
+function openLightbox(src) {  const old = document.getElementById('shot-lightbox');
   if (old) old.remove();
   const wrap = document.createElement('div');
   wrap.id = 'shot-lightbox';
@@ -821,6 +858,16 @@ function hlNums(v) {
   if (!has(v)) return '<span class="empty-state">待补充</span>';
   return esc(v).replace(/(\d+(?:\.\d+)?)(%|秒|万|条|篇|寸|倍|x)/g, '<b class="num-hl">$1$2</b>');
 }
+const NUM_RE = /(\d+(?:\.\d+)?)(%|秒|万|条|篇|寸|倍|x)/g;
+function stripTags(v) { return String(v).replace(/<[^>]*>/g, ''); }
+function normalizeDiagnosis(html) { return String(html).replace(/<b class="num-hl">([^<]*)<\/b>/g, '$1').trim(); }
+function diagnosisHtml(v) {
+  if (!has(v)) return '<span class="empty-state">待补充</span>';
+  if (/<[a-z]/i.test(v)) {
+    return normalizeDiagnosis(v).replace(/>([^<]+)</g, (m, seg) => '>' + seg.replace(NUM_RE, '<b class="num-hl">$1$2</b>') + '<');
+  }
+  return hlNums(v);
+}
 function commitField(field, raw) {
   const current = readData();
   let value = String(raw == null ? '' : raw).replace(/\u00a0/g, ' ').trim();
@@ -834,11 +881,15 @@ function bindInlineEdit(root) {
     const el = event.target.closest && event.target.closest('[data-field]');
     if (!el) return;
     const field = el.dataset.field;
-    const before = has(readData()[field]) ? String(readData()[field]).trim() : '';
-    let after = el.textContent.replace(/\u00a0/g, ' ').trim();
+    const isRich = field === 'trafficDiagnosis';
+    const beforeRaw = has(readData()[field]) ? String(readData()[field]).trim() : '';
+    let after = isRich
+      ? normalizeDiagnosis(el.innerHTML).replace(/\u00a0/g, ' ')
+      : el.textContent.replace(/\u00a0/g, ' ').trim();
     if (el.dataset.num) after = after.replace(/[^\d.\-+]/g, '');
+    const before = isRich ? normalizeDiagnosis(beforeRaw).replace(/\u00a0/g, ' ') : beforeRaw;
     if (after === before || (after === '待补充' && before === '')) return;
-    commitField(field, el.textContent);
+    commitField(field, isRich ? after : el.textContent);
     if (typeof initReport === 'function') initReport();
   }, true);
   root.addEventListener('paste', event => {
@@ -926,7 +977,7 @@ function toPlainText(d) {
         has(d.trafficAdjustment) ? `流量：${d.trafficAdjustment}` : '',
         has(d.reputationAdjustment) ? `口碑：${d.reputationAdjustment}` : ''
       ].filter(Boolean).join('\n'))
-    + section('⑤ 流量诊断', has(d.trafficDiagnosis) ? d.trafficDiagnosis : '');
+    + section('⑤ 流量诊断', has(d.trafficDiagnosis) ? stripTags(d.trafficDiagnosis) : '');
 }
 
 function copySync(value) {
