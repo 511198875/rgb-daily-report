@@ -263,9 +263,16 @@ function tMinusOne(dateStr) {
   return d.toISOString().slice(0,10);
 }
 function trend(v) { return has(v) && Number(v) > 0 ? `+${v}%` : has(v) ? `${v}%` : '待补充'; }
-function metric(label, value) { return `<div class="metric"><label>${esc(label)}</label><strong class="${value === '待补充' ? 'empty' : ''}">${esc(value)}</strong></div>`; }
-function metricWithBenchmark(label, value, benchmarkLabel, benchmarkValue) {
-  return `<div class="metric with-benchmark"><label>${esc(label)}</label><strong class="${value === '待补充' ? 'empty' : ''}">${esc(value)}</strong><div class="benchmark"><span>${esc(benchmarkLabel)}</span><b>${esc(benchmarkValue)}</b></div></div>`;
+const FIELD_TYPES = {};
+FIELD_SECTIONS.forEach(section => section.fields.forEach(([name, , type]) => { FIELD_TYPES[name] = type; }));
+function editableAttrs(field) {
+  if (!field) return '';
+  const numeric = FIELD_TYPES[field] === 'number' ? ' data-num="1"' : '';
+  return ` contenteditable="true" data-field="${field}"${numeric} title="点击可直接修改"`;
+}
+function metric(label, value, field) { return `<div class="metric"><label>${esc(label)}</label><strong class="${value === '待补充' ? 'empty' : ''}"${editableAttrs(field)}>${esc(value)}</strong></div>`; }
+function metricWithBenchmark(label, value, benchmarkLabel, benchmarkValue, field, benchField) {
+  return `<div class="metric with-benchmark"><label>${esc(label)}</label><strong class="${value === '待补充' ? 'empty' : ''}"${editableAttrs(field)}>${esc(value)}</strong><div class="benchmark"><span>${esc(benchmarkLabel)}</span><b${editableAttrs(benchField)}>${esc(benchmarkValue)}</b></div></div>`;
 }
 function textOrEmpty(v) { return has(v) ? esc(v) : '<span class="empty-state">待补充</span>'; }
 
@@ -542,7 +549,7 @@ function initReport() {
         <div class="metric-group">
           <div class="metric-group-label">型号词表现${has(d.modelSearchTarget) ? `<small>${CAMPAIGN.start.slice(5).replace('-', '/')}–${CAMPAIGN.end.slice(5).replace('-', '/')} 目标 ${esc(d.modelSearchTarget)}${dailyTargetOf(d) ? ` · 日均 ${Math.round(dailyTargetOf(d)).toLocaleString('zh-CN')}` : ''}</small>` : ''}</div>
           <div class="metrics">
-            ${metric('型号词搜索（T-1）', val(d, 'modelSearch'))}
+            ${metric('型号词搜索（T-1）', val(d, 'modelSearch'), 'modelSearch')}
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
             ${metric('日完成率', rateText(autoRate(d, 'modelSearch', 'daily'), d.modelSearchDailyRate))}
             ${metric('冲刺累完成率', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
@@ -554,11 +561,11 @@ function initReport() {
           <div class="metric-group-label">搜索与商详表现</div>
           <div class="metrics comparison-grid">
             <div class="benchmark-col">
-              ${metricWithBenchmark('搜索点击率', val(d, 'searchCtr', '%'), '控比 · 发现X 2027（同期）', val(d, 'searchCtrBenchmark', '%'))}
+              ${metricWithBenchmark('搜索点击率', val(d, 'searchCtr', '%'), '控比 · 发现X 2027（同期）', val(d, 'searchCtrBenchmark', '%'), 'searchCtr', 'searchCtrBenchmark')}
               ${trendPanel('searchCtr', d, { width: 540 })}
             </div>
             <div class="benchmark-col">
-              ${metricWithBenchmark('平均停留时长', val(d, 'detailDuration'), '控比 · 发现X 2027（同期）', val(d, 'detailDurationBenchmark'))}
+              ${metricWithBenchmark('平均停留时长', val(d, 'detailDuration'), '控比 · 发现X 2027（同期）', val(d, 'detailDurationBenchmark'), 'detailDuration', 'detailDurationBenchmark')}
               ${trendPanel('detailDuration', d, { width: 540 })}
             </div>
           </div>
@@ -576,10 +583,9 @@ function initReport() {
       <div class="subsection">
         <div class="subsection-title"><span>站内内容</span><small>ON-SITE CONTENT</small></div>
         <div class="metrics content-metrics">
-          ${metric('计划 / 已上线', `${val(d,'contentPlan')} / ${val(d,'contentOnline')}`)}
-          ${metric('内容流量', val(d,'contentTraffic'))}
-          ${metric('日完成率', val(d,'contentDailyRate','%'))}
-          ${metric('10 月累完成率', val(d,'contentMonthlyRate','%'))}
+          ${metric('计划', val(d,'contentPlan',' 篇'), 'contentPlan')}
+          ${metric('已上线', val(d,'contentOnline',' 篇'), 'contentOnline')}
+          ${metric('内容流量', val(d,'contentTraffic'), 'contentTraffic')}
         </div>
       </div>
     </section>
@@ -588,22 +594,22 @@ function initReport() {
       <div class="subsection is-first">
         <div class="subsection-title"><span>口碑进度</span><small>REPUTATION PROGRESS</small></div>
         <div class="metrics rep-metrics">
-          ${metric('今日发布正面内容', val(d,'repPositive',' 条'))}
-          ${metric('今日维护评论内容', val(d,'repComment',' 条'))}
-          ${metric('TOP 占比', val(d,'repTop','%'))}
-          ${metric('今日覆盖率', val(d,'repCoverage','%'))}
+          ${metric('今日发布正面内容', val(d,'repPositive',' 条'), 'repPositive')}
+          ${metric('今日维护评论内容', val(d,'repComment',' 条'), 'repComment')}
+          ${metric('TOP 占比', val(d,'repTop','%'), 'repTop')}
+          ${metric('今日覆盖率', val(d,'repCoverage','%'), 'repCoverage')}
         </div>
       </div>
       <div class="subsection">
         <div class="subsection-title"><span>评论区用户声音洞察</span><small>NEGATIVE INSIGHTS</small></div>
         ${negativePie(d)}
-        <div class="note negative" style="margin-top:14px"><span class="note-label">评论区负面总结</span>${textOrEmpty(d.negSummary)}</div>
+        ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary', 'margin-top:14px')}
       </div>
     </section>
     ${actionCard(d)}
     <section class="card">
       <div class="card-head"><div><div class="card-kicker">05 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
-      ${noteBlock('当日诊断', d.trafficDiagnosis, 'note')}
+      ${noteBlock('当日诊断', d.trafficDiagnosis, 'note', 'trafficDiagnosis')}
       ${shotBlock(d.diagShot)}
     </section>
   `;
@@ -619,6 +625,7 @@ function initReport() {
   });
   document.querySelector('#image-btn').addEventListener('click', () => exportReportImage(d));
   document.querySelector('#print-btn').addEventListener('click', () => window.print());
+  bindInlineEdit(root);
 }
 
 async function exportReportImage(data) {
@@ -662,15 +669,15 @@ async function exportReportImage(data) {
   }
 }
 
-function healthChip(v) {
+function healthChip(v, key) {
   if (!has(v)) return '';
-  return `<span class="health-chip ${v === '滞后' ? 'lag' : 'ok'}">${esc(v)}</span>`;
+  return `<span class="health-chip ${v === '滞后' ? 'lag' : 'ok'}" data-health="${key}Health" title="点击切换正常 / 滞后">${esc(v)}</span>`;
 }
 function channel(name, d, key, opts = {}) {
   const unit = opts.unit || ' 条';
-  const stat = (label, field, dodKey) => `<div class="channel-stat"><span>${label}</span><b>${val(d, `${key}${field}`, unit)}</b>${dodKey ? dodTag(autoDod(d, dodKey)) : ''}</div>`;
+  const stat = (label, field, dodKey) => `<div class="channel-stat"><span>${label}</span><b${editableAttrs(`${key}${field}`)}>${val(d, `${key}${field}`, unit)}</b>${dodKey ? dodTag(autoDod(d, dodKey)) : ''}</div>`;
   return `<div class="channel-card">
-    <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`])}</div>
+    <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`], key)}</div>
     <div class="channel-stats">
       ${stat('总计划', 'TotalPlan')}
       ${stat('今日计划', 'TodayPlan')}
@@ -683,9 +690,9 @@ function geoChannel(d) {
   return `<div class="channel-card">
     <div class="channel-name"><i class="dot"></i>GEO</div>
     <div class="channel-stats geo-stats">
-      <div class="channel-stat wide"><span>核心问题</span><b>${textOrEmpty(d.geoQuestion)}</b></div>
-      <div class="channel-stat"><span>发文</span><b>${val(d,'geoArticles',' 篇')}</b></div>
-      <div class="channel-stat"><span>露出率</span><b>${val(d,'geoExposure','%')}</b></div>
+      <div class="channel-stat wide"><span>核心问题</span><b${editableAttrs('geoQuestion')}>${textOrEmpty(d.geoQuestion)}</b></div>
+      <div class="channel-stat"><span>发文</span><b${editableAttrs('geoArticles')}>${val(d,'geoArticles',' 篇')}</b></div>
+      <div class="channel-stat"><span>露出率</span><b${editableAttrs('geoExposure')}>${val(d,'geoExposure','%')}</b></div>
     </div>
   </div>`;
 }
@@ -705,13 +712,13 @@ function openLightbox(src) {
 }
 function actionCard(d) {
   const items = [
-    has(d.trafficAdjustment) && { tag: '流量', en: 'TRAFFIC', value: d.trafficAdjustment },
-    has(d.reputationAdjustment) && { tag: '口碑', en: 'REPUTATION', value: d.reputationAdjustment }
+    has(d.trafficAdjustment) && { tag: '流量', en: 'TRAFFIC', value: d.trafficAdjustment, field: 'trafficAdjustment' },
+    has(d.reputationAdjustment) && { tag: '口碑', en: 'REPUTATION', value: d.reputationAdjustment, field: 'reputationAdjustment' }
   ].filter(Boolean);
   if (!items.length) return '';
   return `<section class="card">
       <div class="card-head"><div><div class="card-kicker">04 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
-      ${items.map((item, index) => `<div class="subsection${index === 0 ? ' is-first' : ''}"><div class="subsection-title"><span>${item.tag}</span><small>${item.en}</small></div>${noteBlock('动作调整', item.value, 'note negative')}</div>`).join('')}
+      ${items.map((item, index) => `<div class="subsection${index === 0 ? ' is-first' : ''}"><div class="subsection-title"><span>${item.tag}</span><small>${item.en}</small></div>${noteBlock('动作调整', item.value, 'note negative', item.field)}</div>`).join('')}
     </section>`;
 }
 function pieSlice(cx, cy, r, startAngle, endAngle) {
@@ -723,14 +730,14 @@ function pieSlice(cx, cy, r, startAngle, endAngle) {
 }
 function negativePie(d) {
   const items = [
-    { label: '竞品攻击', value: parseMetricNumber(d.negCompetitor), color: '#2357ff' },
-    { label: '产品质量', value: parseMetricNumber(d.negQuality), color: '#ef4f71' },
-    { label: '产品售后', value: parseMetricNumber(d.negAfterSale), color: '#f0a13a' }
+    { label: '竞品攻击', value: parseMetricNumber(d.negCompetitor), color: '#2357ff', field: 'negCompetitor' },
+    { label: '产品质量', value: parseMetricNumber(d.negQuality), color: '#ef4f71', field: 'negQuality' },
+    { label: '产品售后', value: parseMetricNumber(d.negAfterSale), color: '#f0a13a', field: 'negAfterSale' }
   ];
   const filled = items.filter(item => item.value !== null && item.value > 0);
   const total = filled.reduce((sum, item) => sum + item.value, 0);
   const centerTotal = parseMetricNumber(d.negNew);
-  const totalBlock = `<div class="neg-total"><span>负面内容新增</span><b class="${centerTotal === null ? 'empty' : ''}">${centerTotal !== null ? `${centerTotal}<small>条</small>` : '待补充'}</b></div>`;
+  const totalBlock = `<div class="neg-total"><span>负面内容新增</span><b class="${centerTotal === null ? 'empty' : ''}"${editableAttrs('negNew')} data-num="1">${centerTotal !== null ? `${centerTotal}<small>条</small>` : '待补充'}</b></div>`;
   if (!total) return `<div class="neg-pie-wrap">${totalBlock}<div class="neg-pie-empty">填写竞品攻击、产品质量、产品售后数量后，自动生成饼图</div></div>`;
   const size = 132, cx = 66, cy = 66, r = 52;
   let angle = 0, slices = '';
@@ -742,7 +749,7 @@ function negativePie(d) {
   });
   const legend = filled.map(item => {
     const pct = Math.round(item.value / total * 100);
-    return `<div class="neg-legend-item"><i style="background:${item.color}"></i><span>${item.label}</span><b>${item.value} 条</b><small>${pct}%</small></div>`;
+    return `<div class="neg-legend-item"><i style="background:${item.color}"></i><span>${item.label}</span><b${editableAttrs(item.field)} data-num="1">${item.value} 条</b><small>${pct}%</small></div>`;
   }).join('');
   return `<div class="neg-pie-wrap">
     ${totalBlock}
@@ -754,7 +761,53 @@ function negativePie(d) {
     <div class="neg-legend">${legend}</div>
   </div>`;
 }
-function noteBlock(label, value, cls) { return `<div class="${cls}"><span class="note-label">${label}</span>${textOrEmpty(value)}</div>`; }
+function noteBlock(label, value, cls, field, style) { return `<div class="${cls}"${style ? ` style="${style}"` : ''}><span class="note-label">${label}</span><span class="note-body"${editableAttrs(field)}>${textOrEmpty(value)}</span></div>`; }
+function commitField(field, raw) {
+  const current = readData();
+  let value = String(raw == null ? '' : raw).replace(/\u00a0/g, ' ').trim();
+  if (value === '待补充') value = '';
+  if (FIELD_TYPES[field] === 'number') value = value.replace(/[^\d.\-+]/g, '');
+  const next = { ...current, [field]: value };
+  writeData(next, !!TREND_METRICS[field]);
+}
+function bindInlineEdit(root) {
+  root.addEventListener('blur', event => {
+    const el = event.target.closest && event.target.closest('[data-field]');
+    if (!el) return;
+    const field = el.dataset.field;
+    const before = has(readData()[field]) ? String(readData()[field]).trim() : '';
+    let after = el.textContent.replace(/\u00a0/g, ' ').trim();
+    if (el.dataset.num) after = after.replace(/[^\d.\-+]/g, '');
+    if (after === before || (after === '待补充' && before === '')) return;
+    commitField(field, el.textContent);
+    if (typeof initReport === 'function') initReport();
+  }, true);
+  root.addEventListener('paste', event => {
+    const el = event.target.closest && event.target.closest('[data-field]');
+    if (!el) return;
+    event.preventDefault();
+    const text = (event.clipboardData || window.clipboardData).getData('text');
+    document.execCommand('insertText', false, text);
+  });
+  root.addEventListener('keydown', event => {
+    const el = event.target.closest && event.target.closest('[data-field]');
+    if (!el) return;
+    if (event.key === 'Enter' && !event.shiftKey && !el.classList.contains('note-body')) {
+      event.preventDefault();
+      el.blur();
+    }
+    if (event.key === 'Escape') { el.blur(); }
+  });
+  root.querySelectorAll('[data-health]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.health;
+      const current = readData();
+      const nextValue = current[key] === '滞后' ? '正常' : '滞后';
+      writeData({ ...current, [key]: nextValue });
+      if (typeof initReport === 'function') initReport();
+    });
+  });
+}
 
 function toPlainText(d) {
   const item = (label, v, suffix = '') => has(v) ? `${label} ${v}${suffix}` : '';
@@ -779,7 +832,7 @@ function toPlainText(d) {
   };
 
   const geoBits = bits([item('发文', d.geoArticles, ' 篇'), item('露出率', d.geoExposure, '%')]);
-  const contentBits = bits([item('计划', d.contentPlan, ' 篇'), item('已上线', d.contentOnline, ' 篇'), item('内容流量', d.contentTraffic), item('日完成率', d.contentDailyRate, '%'), item('10月累完成率', d.contentMonthlyRate, '%')]);
+  const contentBits = bits([item('计划', d.contentPlan, ' 篇'), item('已上线', d.contentOnline, ' 篇'), item('内容流量', d.contentTraffic)]);
   const repBits = bits([item('正面内容', d.repPositive, ' 条'), item('维护评论', d.repComment, ' 条'), item('TOP 占比', d.repTop, '%'), item('覆盖率', d.repCoverage, '%')]);
   const negBits = bits([item('竞品攻击', d.negCompetitor, ' 条'), item('产品质量', d.negQuality, ' 条'), item('产品售后', d.negAfterSale, ' 条')]);
   const negLine = (has(d.negNew) || negBits) ? bits([
