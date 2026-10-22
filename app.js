@@ -65,7 +65,8 @@ const FIELD_SECTIONS = [
       ['negCompetitor', '负面 · 竞品攻击', 'number', '条'],
       ['negQuality', '负面 · 产品质量', 'number', '条'],
       ['negAfterSale', '负面 · 产品售后', 'number', '条'],
-      ['negSummary', '评论区负面总结', 'textarea', '一两句话概括']
+      ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'],
+      ['voiceShots', '用户原声截图', 'images']
     ]
   },
   {
@@ -109,7 +110,7 @@ const MODULE_SECTIONS = [
     ['contentPlan', '站内内容 · 计划', 'number', '篇'], ['contentOnline', '站内内容 · 已上线', 'number', '篇'], ['contentTraffic', '站内内容 · 内容流量', 'text', '如：126,500'], ['contentDailyRate', '站内内容 · 日完成率', 'number', '%'], ['contentMonthlyRate', '站内内容 · 10 月累完成率', 'number', '%']
   ]},
   { id: 'reputation', title: '口碑与用户原声', desc: '填写口碑进度与评论区负面声音洞察。', fields: [
-    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括']
+    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'], ['voiceShots', '用户原声截图（可多张）', 'images']
   ]},
   { id: 'adjust', title: '动作调整', desc: '记录流量与口碑今日待执行的动作。', fields: [
     ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'], ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
@@ -471,8 +472,8 @@ function initEditor() {
 }
 
 function fieldHtml([name, label, type, meta], data) {
-  const full = type === 'textarea';
-  if (type === 'image') return `<div class="field full shot-field" data-shot="${name}"><label>${label}</label><input type="hidden" id="${name}" name="${name}" value="${esc(data[name] || '')}"><div class="shot-preview"></div><label class="shot-btn">上传截图<input type="file" accept="image/*" hidden></label></div>`;
+  const full = type === 'textarea' || type === 'image' || type === 'images';
+  if (type === 'image' || type === 'images') return `<div class="field full shot-field" data-shot="${name}"><label>${label}${type === 'images' ? '（可传多张）' : ''}</label><input type="hidden" id="${name}" name="${name}" value="${esc(data[name] || '')}"><div class="shot-preview"></div><label class="shot-btn">上传截图<input type="file" accept="image/*"${type === 'images' ? ' multiple' : ''} hidden></label></div>`;
   if (type === 'select') return `<div class="field"><label for="${name}">${label}</label><select id="${name}" name="${name}">${meta.map(x => `<option ${data[name]===x?'selected':''}>${x}</option>`).join('')}</select></div>`;
   if (type === 'textarea') return `<div class="field full"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" placeholder="${esc(meta || '')}">${esc(data[name] || '')}</textarea></div>`;
   if (type === 'number' && meta) return `<div class="field"><label for="${name}">${label}</label><div class="unit-input"><input id="${name}" name="${name}" type="number" step="any" value="${esc(data[name] || '')}" placeholder="0"><span>${esc(meta)}</span></div></div>`;
@@ -507,21 +508,37 @@ function bindShotFields(form, persist) {
     const hidden = field.querySelector('input[type=hidden]');
     const fileInput = field.querySelector('input[type=file]');
     const preview = field.querySelector('.shot-preview');
-    const paint = () => {
-      preview.innerHTML = hidden.value
-        ? `<img src="${esc(hidden.value)}" alt="截图预览"><button type="button" class="shot-remove">移除</button>`
-        : '';
-      const remove = preview.querySelector('.shot-remove');
-      if (remove) remove.addEventListener('click', () => { hidden.value = ''; paint(); persist(); showToast('截图已移除'); });
+    const multi = fileInput.hasAttribute('multiple');
+    const readList = () => {
+      const raw = hidden.value || '';
+      if (raw.startsWith('[')) { try { const v = JSON.parse(raw); if (Array.isArray(v)) return v.filter(Boolean); } catch {} }
+      return raw ? [raw] : [];
     };
-    fileInput.addEventListener('change', async () => {
-      const file = fileInput.files && fileInput.files[0];
-      if (!file) return;
-      try {
-        hidden.value = await shrinkImage(file);
+    const paint = () => {
+      const list = readList();
+      preview.innerHTML = list.map((src, i) =>
+        `<span class="shot-thumb"><img src="${esc(src)}" data-i="${i}" alt="截图"><button type="button" class="shot-remove" data-i="${i}" title="移除">×</button></span>`
+      ).join('');
+      preview.querySelectorAll('img').forEach(img => img.addEventListener('click', () => openLightbox(img.src)));
+      preview.querySelectorAll('.shot-remove').forEach(btn => btn.addEventListener('click', () => {
+        const list = readList();
+        list.splice(Number(btn.dataset.i), 1);
+        hidden.value = multi ? JSON.stringify(list) : (list[0] || '');
         paint();
         persist();
-        showToast('截图已添加');
+        showToast('截图已移除');
+      }));
+    };
+    fileInput.addEventListener('change', async () => {
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) return;
+      try {
+        let list = readList();
+        for (const file of files) list.push(await shrinkImage(file, 1000, 0.65));
+        hidden.value = multi ? JSON.stringify(list) : (list[list.length - 1] || '');
+        paint();
+        persist();
+        showToast(files.length > 1 ? `已添加 ${files.length} 张截图` : '截图已添加');
       } catch {
         showToast('图片处理失败，换一张试试');
       }
@@ -605,6 +622,7 @@ function initReport() {
         ${negativePie(d)}
         ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary', 'margin-top:14px')}
       </div>
+      ${(() => { const gallery = shotBlock(d.voiceShots); return gallery ? `<div class="subsection"><div class="subsection-title"><span>用户原声</span><small>USER VOICE</small></div>${gallery}</div>` : ''; })()}
     </section>
     ${actionCard(d)}
     <section class="card">
@@ -697,8 +715,14 @@ function geoChannel(d) {
   </div>`;
 }
 function shotBlock(raw) {
-  if (!has(raw) || !String(raw).startsWith('data:image')) return '';
-  return `<div class="shot-view"><img src="${esc(raw)}" alt="原生截图"></div>`;
+  let list = [];
+  try {
+    const v = typeof raw === 'string' && raw.trim().startsWith('[') ? JSON.parse(raw) : raw;
+    list = Array.isArray(v) ? v : (v ? [v] : []);
+  } catch { list = []; }
+  list = list.filter(src => has(src) && String(src).startsWith('data:image'));
+  if (!list.length) return '';
+  return `<div class="shot-view">${list.map(src => `<img src="${esc(src)}" alt="原生截图">`).join('')}</div>`;
 }
 function openLightbox(src) {
   const old = document.getElementById('shot-lightbox');
