@@ -16,7 +16,7 @@ const FIELD_SECTIONS = [
     id: 'traffic', title: '核心流量数据', desc: '建议统一填写百分号前的数字，例如 12.5。',
     fields: [
       ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'],
-      ['modelSearchDoD', '型号词搜索日环比', 'number', '%'],
+      ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'],
       ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'],
       ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'],
       ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'],
@@ -87,7 +87,7 @@ const MODULE_SECTIONS = [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'], ['modelShot', '后台原生截图', 'image']
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'], ['modelShot', '后台原生截图', 'image']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
@@ -197,7 +197,10 @@ function formatDuration(sec) {
 const TREND_METRICS = {
   modelSearch: { label: '型号词搜索', unit: '', parse: v => parseMetricNumber(v), fmt: v => Math.round(v).toLocaleString('zh-CN') },
   searchCtr: { label: '搜索点击率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${Number(v.toFixed(1))}%` },
-  detailDuration: { label: '平均停留时长', unit: '秒', parse: v => parseMetricNumber(v), fmt: v => `${v}秒` }
+  detailDuration: { label: '平均停留时长', unit: '秒', parse: v => parseMetricNumber(v), fmt: v => `${v}秒` },
+  redbookTotalOnline: { label: '红书总上线', unit: '篇', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 篇` },
+  biliTotalOnline: { label: 'B站总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` },
+  douyinTotalOnline: { label: '抖音总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` }
 };
 function withTrendHistory(data, previous = {}, capture = false) {
   const legacy = Array.isArray(previous._modelSearchHistory) ? { modelSearch: previous._modelSearchHistory } : {};
@@ -280,6 +283,27 @@ function trendPoints(data, key) {
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(-7)
     .map(point => ({ date: point.date, value: Number(point.value) }));
+}
+/* 日环比自动计算：取该指标最近两个数据点，无需手填 */
+function autoDod(data, key) {
+  const points = trendPoints(data, key);
+  if (points.length < 2) return null;
+  const last = points[points.length - 1].value;
+  const prev = points[points.length - 2].value;
+  if (!Number.isFinite(last) || !Number.isFinite(prev) || prev === 0) return null;
+  return Math.round((last - prev) / prev * 1000) / 10;
+}
+function dodText(value) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '';
+  const rounded = Math.round(value * 10) / 10;
+  return `${rounded > 0 ? '+' : ''}${rounded}%`;
+}
+function dodTag(value) {
+  const text = dodText(value);
+  if (!text) return '';
+  const up = value > 0.05, down = value < -0.05;
+  const arrow = up ? '▲' : down ? '▼' : '－';
+  return `<span class="dod-tag ${up ? 'up' : down ? 'down' : 'flat'}">${arrow}${Math.abs(Math.round(value * 10) / 10)}%</span>`;
 }
 function trendPanel(key, data, opts = {}) {
   const cfg = TREND_METRICS[key];
@@ -467,7 +491,7 @@ function initReport() {
           <div class="metric-group-label">型号词表现</div>
           <div class="metrics">
             ${metric('型号词搜索（T-1）', val(d, 'modelSearch'))}
-            ${metric('日环比', trend(d.modelSearchDoD))}
+            ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
             ${metric('日完成率', val(d, 'modelSearchDailyRate', '%'))}
             ${metric('10 月累完成率', val(d, 'modelSearchMonthlyRate', '%'))}
           </div>
@@ -592,13 +616,13 @@ function healthChip(v) {
 }
 function channel(name, d, key, opts = {}) {
   const unit = opts.unit || ' 条';
-  const stat = (label, field) => `<div class="channel-stat"><span>${label}</span><b>${val(d, `${key}${field}`, unit)}</b></div>`;
+  const stat = (label, field, dodKey) => `<div class="channel-stat"><span>${label}</span><b>${val(d, `${key}${field}`, unit)}</b>${dodKey ? dodTag(autoDod(d, dodKey)) : ''}</div>`;
   return `<div class="channel-card">
     <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`])}</div>
     <div class="channel-stats">
       ${stat('总计划', 'TotalPlan')}
       ${stat('今日计划', 'TodayPlan')}
-      ${stat('总上线', 'TotalOnline')}
+      ${stat('总上线', 'TotalOnline', `${key}TotalOnline`)}
       ${stat('今日上线', 'TodayOnline')}
     </div>
   </div>`;
@@ -691,10 +715,11 @@ function toPlainText(d) {
 
   const chLine = (label, key, opts = {}) => {
     const unit = opts.unit || ' 条';
+    const onlineDod = dodText(autoDod(d, `${key}TotalOnline`));
     const line = bits([
       item('总计划', d[`${key}TotalPlan`], unit),
       item('今日计划', d[`${key}TodayPlan`], unit),
-      item('总上线', d[`${key}TotalOnline`], unit),
+      item('总上线', d[`${key}TotalOnline`], onlineDod ? `${unit}（日环比 ${onlineDod}）` : unit),
       item('今日上线', d[`${key}TodayOnline`], unit),
       item('健康度', d[`${key}Health`])
     ]);
@@ -710,9 +735,10 @@ function toPlainText(d) {
     negBits
   ]) : '';
 
+  const modelDod = dodText(autoDod(d, 'modelSearch'));
   return `【${name} · 流量日报】${formatDate(d.reportDate, true)}\n数据周期：${formatDate(tMinusOne(d.reportDate), true)}（T-1）${cp ? `｜时间进度 ${cp.percent}%（第 ${cp.passedDays}/${cp.totalDays} 天）` : ''}`
     + section('① 核心流量', [
-        bits([item('型号词搜索', d.modelSearch), tr(d.modelSearchDoD), item('日完成率', d.modelSearchDailyRate, '%'), item('10月累完成率', d.modelSearchMonthlyRate, '%')]),
+        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), item('日完成率', d.modelSearchDailyRate, '%'), item('10月累完成率', d.modelSearchMonthlyRate, '%')]),
         bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [
