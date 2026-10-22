@@ -651,6 +651,15 @@ function initReport() {
 
   root.querySelectorAll('.shot-view img').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.src));
+    /* 按真实宽高比定尺寸，导出长图（html2canvas 不支持 object-fit）不变形 */
+    const fit = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      const h = img.closest('.shot-view.voice') ? 200 : 104;
+      img.style.height = `${h}px`;
+      img.style.width = `${Math.round(h * img.naturalWidth / img.naturalHeight)}px`;
+      img.style.objectFit = 'contain';
+    };
+    if (img.complete) fit(); else img.addEventListener('load', fit);
   });
   const diagNote = root.querySelector('[data-field="trafficDiagnosis"]');
   if (diagNote) bindRichBar(diagNote);
