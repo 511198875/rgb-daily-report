@@ -19,7 +19,7 @@ const FIELD_SECTIONS = [
       ['modelSearchTarget', '10 月型号词目标', 'number', '次'],
       ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'],
       ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'],
-      ['modelSearchMonthlyRate', '冲刺累完成率（留空自动算）', 'number', '%'],
+      ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'],
       ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'],
       ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'],
       ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'],
@@ -52,6 +52,7 @@ const FIELD_SECTIONS = [
       ['douyinCost', '抖音 · 消耗进度', 'number', '%'],
       ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']],
       ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'],
+      ['geoHealth', 'GEO · 进度状态', 'select', ['正常', '进度较慢']],
       ['geoArticles', 'GEO · 发文', 'number', '篇'],
       ['geoExposure', 'GEO · 露出率', 'number', '%'],
       ['contentPlan', '站内内容 · 计划', 'number', '篇'],
@@ -96,7 +97,7 @@ const MODULE_SECTIONS = [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '冲刺累完成率（留空自动算）', 'number', '%'], ['modelShot', '后台原生截图（可多张）', 'images']
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'], ['modelShot', '后台原生截图（可多张）', 'images']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
@@ -111,7 +112,7 @@ const MODULE_SECTIONS = [
     ['douyinTotalPlan', '抖音 · 总计划', 'number', '条'], ['douyinTodayPlan', '抖音 · 今日计划', 'number', '条'], ['douyinTotalOnline', '抖音 · 总上线', 'number', '条'], ['douyinTodayOnline', '抖音 · 今日上线', 'number', '条'], ['douyinCost', '抖音 · 消耗进度', 'number', '%'], ['douyinHealth', '抖音 · 健康度', 'select', ['正常', '滞后']]
   ]},
   { id: 'geo', title: 'GEO', desc: '填写 GEO 核心问题、发文及露出率。', fields: [
-    ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'], ['geoArticles', 'GEO · 发文', 'number', '篇'], ['geoExposure', 'GEO · 露出率', 'number', '%']
+    ['geoQuestion', 'GEO · 核心问题', 'textarea', '今日重点追踪的问题'], ['geoHealth', 'GEO · 进度状态', 'select', ['正常', '进度较慢']], ['geoArticles', 'GEO · 发文', 'number', '篇'], ['geoExposure', 'GEO · 露出率', 'number', '%']
   ]},
   { id: 'content', title: '站内内容', desc: '填写内容供给、流量及目标完成情况。', fields: [
     ['contentPlan', '站内内容 · 计划', 'number', '篇'], ['contentOnline', '站内内容 · 已上线', 'number', '篇'], ['contentTraffic', '站内内容 · 内容流量', 'text', '如：126,500'], ['contentDailyRate', '站内内容 · 日完成率', 'number', '%'], ['contentMonthlyRate', '站内内容 · 10 月累完成率', 'number', '%']
@@ -575,8 +576,7 @@ function initReport() {
           <div class="metrics">
             ${metric('型号词搜索（T-1）', val(d, 'modelSearch'), 'modelSearch')}
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
-            ${metric('日完成率', rateText(autoRate(d, 'modelSearch', 'daily'), d.modelSearchDailyRate))}
-            ${metric('冲刺累完成率', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
+            ${metric('10月目标完成率（10.21日-10.31日）', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
           </div>
           ${trendPanel('modelSearch', d, { width: 900, height: 300, large: true, open: true })}
           ${shotBlock(d.modelShot)}
@@ -694,9 +694,17 @@ async function exportReportImage(data) {
   }
 }
 
-function healthChip(v, key) {
+const HEALTH_OPTIONS = { geoHealth: ['正常', '进度较慢'] };
+const DEFAULT_HEALTH_OPTIONS = ['正常', '滞后'];
+function healthOptions(field) { return HEALTH_OPTIONS[field] || DEFAULT_HEALTH_OPTIONS; }
+function healthClass(field, v) {
+  if (field === 'geoHealth') return v === '进度较慢' ? 'geo-lag' : 'geo-ok';
+  return v === '滞后' ? 'lag' : 'ok';
+}
+function healthChip(v, field) {
   if (!has(v)) return '';
-  return `<span class="health-chip ${v === '滞后' ? 'lag' : 'ok'}" data-health="${key}Health" title="点击切换正常 / 滞后">${esc(v)}</span>`;
+  const opts = healthOptions(field);
+  return `<span class="health-chip ${healthClass(field, v)}" data-health="${field}" data-health-options="${esc(opts.join('|'))}" title="点击切换 ${opts.join(' / ')}">${esc(v)}</span>`;
 }
 function channel(name, d, key, opts = {}) {
   const unit = opts.unit || ' 条';
@@ -708,7 +716,7 @@ function channel(name, d, key, opts = {}) {
   const costStat = `
       <div class="channel-stat wide cost-stat"><span>消耗进度</span><b${editableAttrs(`${key}Cost`)}>${val(d, `${key}Cost`, '%')}</b>${costRaw !== null ? `<div class="cost-bar"><i style="width:${Math.max(0, Math.min(100, costRaw))}%"></i></div>` : ''}</div>`;
   return `<div class="channel-card">
-    <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`], key)}</div>
+    <div class="channel-name"><i class="dot"></i>${name}${healthChip(d[`${key}Health`], `${key}Health`)}</div>
     <div class="channel-stats">
       ${stat('总计划', 'TotalPlan')}
       ${stat('今日计划', 'TodayPlan')}
@@ -721,7 +729,7 @@ function channel(name, d, key, opts = {}) {
 }
 function geoChannel(d) {
   return `<div class="channel-card">
-    <div class="channel-name"><i class="dot"></i>GEO</div>
+    <div class="channel-name"><i class="dot"></i>GEO${healthChip(d.geoHealth, 'geoHealth')}</div>
     <div class="channel-stats geo-stats">
       <div class="channel-stat wide"><span>核心问题</span><b${editableAttrs('geoQuestion')}>${textOrEmpty(d.geoQuestion)}</b></div>
       <div class="channel-stat"><span>发文</span><b${editableAttrs('geoArticles')}>${val(d,'geoArticles',' 篇')}</b></div>
@@ -840,8 +848,10 @@ function bindInlineEdit(root) {
   root.querySelectorAll('[data-health]').forEach(chip => {
     chip.addEventListener('click', () => {
       const key = chip.dataset.health;
+      const opts = (chip.dataset.healthOptions || '正常|滞后').split('|');
       const current = readData();
-      const nextValue = current[key] === '滞后' ? '正常' : '滞后';
+      const idx = opts.indexOf(current[key]);
+      const nextValue = opts[(idx + 1) % opts.length];
       writeData({ ...current, [key]: nextValue });
       if (typeof initReport === 'function') initReport();
     });
@@ -872,7 +882,7 @@ function toPlainText(d) {
     return line ? `${label}：${line}` : '';
   };
 
-  const geoBits = bits([item('发文', d.geoArticles, ' 篇'), item('露出率', d.geoExposure, '%')]);
+  const geoBits = bits([item('进度', d.geoHealth), item('发文', d.geoArticles, ' 篇'), item('露出率', d.geoExposure, '%')]);
   const contentBits = bits([item('计划', d.contentPlan, ' 篇'), item('已上线', d.contentOnline, ' 篇'), item('内容流量', d.contentTraffic)]);
   const repBits = bits([item('正面内容', d.repPositive, ' 条'), item('维护评论', d.repComment, ' 条'), item('TOP 占比', d.repTop, '%'), item('覆盖率', d.repCoverage, '%')]);
   const negBits = bits([item('竞品攻击', d.negCompetitor, ' 条'), item('产品质量', d.negQuality, ' 条'), item('产品售后', d.negAfterSale, ' 条')]);
@@ -884,7 +894,7 @@ function toPlainText(d) {
   const modelDod = dodText(autoDod(d, 'modelSearch'));
   return `【${name} · 流量日报】${formatDate(d.reportDate, true)}\n数据周期：${formatDate(tMinusOne(d.reportDate), true)}（T-1）${cp ? `｜时间进度 ${cp.percent}%（第 ${cp.passedDays}/${cp.totalDays} 天）` : ''}`
     + section('① 核心流量', [
-        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), `日完成率 ${rateText(autoRate(d, 'modelSearch', 'daily'), d.modelSearchDailyRate)}`, `冲刺累完成率 ${rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate)}`]),
+        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), `10月目标完成率 ${rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate)}`]),
         bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [

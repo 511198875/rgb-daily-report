@@ -84,9 +84,9 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .metrics.comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .benchmark-col { display: grid; gap: 8px; align-content: start; min-width: 0; }
 .benchmark-col .trend-chart { min-width: 0; }
-.metric.with-benchmark { min-height: 94px; }
-.benchmark { display: flex; align-items: baseline; gap: 6px; margin-top: 8px; padding-top: 7px; border-top: 1px dashed #e6e4df; color: #a3a19b; font-size: 11px; line-height: 1.35; }
-.benchmark b { font-size: 12px; font-weight: 750; color: #898781; }
+.metric.with-benchmark { min-height: 98px; display: flex; flex-direction: column; }
+.benchmark { display: flex; align-items: baseline; gap: 8px; margin-top: auto; padding-top: 8px; border-top: 1px dashed #e6e4df; color: #8a8880; font-size: 12.5px; line-height: 1.35; }
+.benchmark b { font-size: 16px; font-weight: 800; color: #4a4843; letter-spacing: -.02em; white-space: nowrap; }
 .trend-panel { margin-top: 2px; border: 1px solid var(--line); border-radius: 13px; background: #fbfbfa; overflow: hidden; }
 .trend-panel summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 11px 15px; cursor: pointer; list-style: none; user-select: none; }
 .trend-panel summary::-webkit-details-marker { display: none; }
@@ -154,6 +154,8 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .health-chip { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0; }
 .health-chip.ok { background: #e6f6ee; color: #16875d; }
 .health-chip.lag { background: #ffeeed; color: #d8382f; }
+.health-chip.geo-ok { background: #ffeeed; color: #d8382f; }
+.health-chip.geo-lag { background: #eaf1ff; color: #2357ff; }
 .card-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .time-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: #eef2ff; color: #2357ff; font-size: 11px; font-weight: 750; letter-spacing: 0; white-space: nowrap; }
 .neg-pie-wrap { display: flex; align-items: center; gap: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
