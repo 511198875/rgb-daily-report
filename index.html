@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>RGB 新品流量日报 · 10月22日（可填写）</title>
+<title>RGB 新品流量日报 · 10月22日</title>
 <style>
   :root{
     --paper:#FAF9F6; --card:#FFFFFF; --line:#EAE6DF;
@@ -13,48 +13,15 @@
     --up:#C0392B; --down:#1E8E5A;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+  html{-webkit-font-smoothing:antialiased}
   body{
     background:var(--paper);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
-    font-feature-settings:"tnum";padding:0 0 64px;
+    font-feature-settings:"tnum";padding:44px 0 64px;
   }
   .wrap{width:100%;max-width:1020px;margin:0 auto;padding:0 40px}
 
-  /* ---------------- toolbar ---------------- */
-  .toolbar{
-    position:sticky;top:0;z-index:50;
-    background:rgba(250,249,246,.92);backdrop-filter:saturate(160%) blur(12px);
-    border-bottom:1px solid var(--line);
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-    padding:11px 40px;margin-bottom:34px;
-  }
-  .tb-badge{
-    font-size:10.5px;font-weight:700;letter-spacing:.1em;
-    background:#1A1917;color:#fff;padding:4px 9px;border-radius:5px;white-space:nowrap;
-  }
-  .tb-who{
-    border:1px solid var(--line);background:#fff;border-radius:8px;
-    font:inherit;font-size:12.5px;padding:7px 11px;width:150px;outline:none;color:var(--ink);
-  }
-  .tb-who:focus{border-color:var(--s1)}
-  .tb-who::placeholder{color:var(--pending)}
-  .spacer{flex:1}
-  .btn{
-    border:1px solid var(--line);background:#fff;color:var(--ink);
-    font:inherit;font-size:12.5px;font-weight:600;
-    padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;
-    transition:.15s;
-  }
-  .btn:hover{border-color:#C9C2B4;background:#FCFBF8}
-  .btn.primary{background:#1A1917;color:#fff;border-color:#1A1917}
-  .btn.primary:hover{background:#333}
-  .btn.ghost{color:var(--muted);border-color:transparent}
-  .btn.ghost:hover{color:#C0392B;background:#FDF3F1}
-  .toast{font-size:12px;color:var(--down);font-weight:600;opacity:0;transition:.25s;white-space:nowrap}
-  .toast.show{opacity:1}
-
-  /* ---------------- header ---------------- */
+  /* ---------- header ---------- */
   .eyebrow{font-size:11.5px;letter-spacing:.16em;color:var(--s1);font-weight:600;margin-bottom:14px}
   .eyebrow::before{content:"";display:inline-block;width:14px;height:1px;background:var(--s1);vertical-align:middle;margin-right:8px}
   .head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
@@ -68,15 +35,14 @@
   }
   .meta b{color:var(--ink2);font-weight:600}
 
-  /* ---------------- section ---------------- */
+  /* ---------- section ---------- */
   section{margin-top:46px}
   .s-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .s-code{font-size:10.5px;letter-spacing:.14em;color:var(--muted);font-weight:600;white-space:nowrap}
   .s-head h2{font-size:19px;font-weight:700;letter-spacing:.01em}
-  .bar{margin-left:auto;width:54px;height:3px;border-radius:2px;flex:none;appearance:none;border:none;padding:0;cursor:pointer}
-  .bar:hover{opacity:.75}
+  .bar{margin-left:auto;width:54px;height:3px;border-radius:2px;flex:none}
 
-  /* ---------------- cards ---------------- */
+  /* ---------- cards ---------- */
   .rows{display:flex;flex-direction:column;gap:14px}
   .group{border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
   .g-label{font-size:11.5px;color:var(--ink2);font-weight:600;padding:12px 20px 0;display:flex;align-items:center;gap:6px}
@@ -90,12 +56,11 @@
   .f-val{font-size:21px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
   .f-val small{font-size:12.5px;font-weight:500;color:var(--ink2);margin-left:5px}
   .f-sub{font-size:10.5px;color:var(--muted);margin-top:7px}
-  .pending{color:var(--pending)!important;font-weight:600;font-size:19px}
   .up{color:var(--up)} .down{color:var(--down)}
   .c4{grid-template-columns:repeat(4,1fr)}
   .c2{grid-template-columns:repeat(2,1fr)}
 
-  /* ---------------- platform cards ---------------- */
+  /* ---------- platform cards ---------- */
   .plat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .pcard{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 20px 18px}
   .p-head{display:flex;align-items:center;gap:7px;margin-bottom:14px}
@@ -108,20 +73,20 @@
   .p-item .k{font-size:10.5px;color:var(--muted);margin-bottom:5px}
   .p-item .v{font-size:14.5px;font-weight:600;line-height:1.35}
 
-  /* ---------------- 站内内容 ---------------- */
+  /* ---------- 站内内容 ---------- */
   .onsite{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 20px 18px;margin-top:14px}
   .onsite .oh{display:flex;align-items:center;margin-bottom:4px}
   .onsite .oh h3{font-size:14.5px;font-weight:700}
   .onsite .oh span{margin-left:auto;font-size:10px;letter-spacing:.12em;color:var(--muted)}
   .onsite .f-label{padding-top:12px}
 
-  /* ---------------- 诊断 ---------------- */
+  /* ---------- 诊断 ---------- */
   .diag{border:1px solid var(--line);border-left:3px solid var(--s3);border-radius:4px 14px 14px 4px;background:var(--card);padding:18px 24px 20px}
   .diag .f-label{margin-bottom:9px}
   .diag p{font-size:14px;line-height:1.78;color:var(--ink2)}
   .diag p b{color:var(--ink);font-weight:700}
 
-  /* ---------------- 口碑 ---------------- */
+  /* ---------- 口碑 ---------- */
   .voice{display:grid;grid-template-columns:1.55fr 1fr 1fr;gap:14px}
   .vcard{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 20px 18px}
   .vcard h4{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px}
@@ -129,65 +94,62 @@
   .vcard .fk{font-size:10.5px;color:var(--muted);margin:12px 0 4px}
   .vcard .fv{font-size:14px;font-weight:600}
 
-  /* ---------------- 可填写输入框 ---------------- */
-  .fin{
-    font:inherit;font-weight:700;color:var(--ink);
-    background:#FCFBF8;border:none;border-bottom:1.5px dashed #DAD4C7;
-    border-radius:4px 4px 0 0;padding:3px 6px;width:100%;outline:none;
-    transition:.15s;
+  /* ---------- 可直接填写（不改变版式） ---------- */
+  .fill{
+    display:inline-block;min-width:3.4em;outline:none;cursor:text;
+    border-bottom:1px dashed transparent;padding:0 1px;
+    border-radius:2px;transition:background .15s,border-color .15s;
   }
-  .fin::placeholder{color:var(--pending);font-weight:600}
-  .fin:hover{background:#F7F5EF}
-  .fin:focus{background:#F3F7FF;border-bottom-color:var(--s1);box-shadow:0 1px 0 0 var(--s1)}
-  .fin.lg{font-size:19px}
-  .fin.md{font-size:14px;font-weight:600}
-  .fin.sm{font-size:12.5px;font-weight:600}
-  .filling .fin{background:#FFFCF3;border-bottom-color:#E6C98A}
-  .filling .fin:focus{background:#F3F7FF;border-bottom-color:var(--s1)}
+  .fill:empty::before{content:"待补充";color:var(--pending);font-weight:600}
+  .fill:hover{border-bottom-color:#D6D0C2}
+  .fill:focus{background:#F5F8FF;border-bottom-color:var(--s1);box-shadow:0 2px 0 -1px var(--s1)}
+  .fill.has{border-bottom-color:#E4DDCD}
+  .fill.lg{font-size:19px;font-weight:600}
+  .fill.md{font-size:14px;font-weight:600}
+  .fill.sm{font-size:11px;font-weight:600;min-width:2.6em}
 
-  /* ---------------- footer ---------------- */
-  .foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;font-size:11px;color:var(--muted);line-height:1.7}
+  /* ---------- 底部操作 ---------- */
+  .actions{
+    margin-top:34px;display:flex;justify-content:flex-end;align-items:center;gap:10px;
+    flex-wrap:wrap;font-size:11.5px;color:var(--muted);
+  }
+  .actions .st{margin-right:auto}
+  .abtn{
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    font:inherit;font-size:11.5px;font-weight:600;padding:6px 12px;
+    border-radius:7px;cursor:pointer;transition:.15s;white-space:nowrap;
+  }
+  .abtn:hover{border-color:#C9C2B4;background:#FCFBF8}
+  .abtn.dark{background:#1A1917;color:#fff;border-color:#1A1917}
+  .abtn.dark:hover{background:#333}
+
+  /* ---------- footer ---------- */
+  .foot{
+    margin-top:26px;padding-top:18px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;
+    font-size:11px;color:var(--muted);line-height:1.7;
+  }
   .foot .legend{display:flex;gap:16px;flex-wrap:wrap}
   .foot .legend i{font-style:normal;font-weight:700}
-
-  .hint{
-    margin-top:18px;padding:13px 18px;border-radius:10px;
-    background:#F4F7FD;border:1px solid #E1E8F5;color:#3A4A63;
-    font-size:12px;line-height:1.7;
-  }
-  .hint b{color:#22314A}
 
   @media print{
     @page{size:A4;margin:12mm}
     body{background:#fff;padding:0}
     .wrap{max-width:none;padding:0}
-    .toolbar,.hint{display:none!important}
+    .actions{display:none!important}
     section{break-inside:avoid}
-    .fin{background:transparent!important;border-bottom:none!important;padding-left:0}
-    .fin::placeholder{color:#C9C4BA}
+    .fill:empty::before{content:"—";color:#C9C4BA}
   }
   @media (max-width:820px){
-    .wrap,.toolbar{padding-left:22px;padding-right:22px}
+    .wrap{padding:0 22px}
     h1{font-size:38px}
     .c4{grid-template-columns:1fr 1fr}
     .plat,.voice{grid-template-columns:1fr}
     .f+.f{border-left:none;padding-left:0}
-    .tb-who{width:110px}
   }
 </style>
 </head>
 <body>
-
-<div class="toolbar">
-  <span class="tb-badge">可填写</span>
-  <input id="who" class="tb-who" placeholder="填写人姓名" autocomplete="off">
-  <span class="spacer"></span>
-  <button id="btn-copy" class="btn">复制填写结果</button>
-  <button id="btn-link" class="btn primary">生成分享链接</button>
-  <button id="btn-clear" class="btn ghost">清空</button>
-  <span class="toast" id="toast"></span>
-</div>
-
 <div class="wrap">
 
   <div class="eyebrow">DAILY PULSE</div>
@@ -204,10 +166,6 @@
     <span><b>口径</b>　抖音 / 小红书 / B站 / GEO / 站内 / 口碑</span>
   </div>
 
-  <div class="hint">
-    灰色虚线框可以直接填。填完点右上角 <b>「生成分享链接」</b>，把链接发回给草草，她打开就是你填的版本；也可以点 <b>「复制填写结果」</b> 直接粘贴。
-  </div>
-
   <!-- ================= 01 核心流量 ================= -->
   <section>
     <div class="s-head">
@@ -222,19 +180,19 @@
         <div class="g-fields c4">
           <div class="f">
             <div class="f-label">型号词搜索量（T-1）</div>
-            <input class="fin lg" data-k="kw_search" placeholder="待补充" autocomplete="off">
+            <div class="f-val"><span class="fill lg" data-k="kw_search" contenteditable="true"></span></div>
           </div>
           <div class="f">
             <div class="f-label">日环比</div>
-            <input class="fin lg" data-k="kw_wow" placeholder="待补充" autocomplete="off">
+            <div class="f-val"><span class="fill lg" data-k="kw_wow" contenteditable="true"></span></div>
           </div>
           <div class="f">
             <div class="f-label">日完成率</div>
-            <input class="fin lg" data-k="kw_day" placeholder="待补充" autocomplete="off">
+            <div class="f-val"><span class="fill lg" data-k="kw_day" contenteditable="true"></span></div>
           </div>
           <div class="f">
             <div class="f-label">10月累计完成率</div>
-            <input class="fin lg" data-k="kw_month" placeholder="待补充" autocomplete="off">
+            <div class="f-val"><span class="fill lg" data-k="kw_month" contenteditable="true"></span></div>
           </div>
         </div>
       </div>
@@ -244,17 +202,13 @@
         <div class="g-fields c2">
           <div class="f">
             <div class="f-label">搜索点击率</div>
-            <input class="fin lg" data-k="ctr" placeholder="待补充" autocomplete="off">
-            <div class="f-sub">同比：发现X 2027　
-              <input class="fin sm" data-k="ctr_yoy" placeholder="待补充" autocomplete="off" style="width:46%;margin-left:4px">
-            </div>
+            <div class="f-val"><span class="fill lg" data-k="ctr" contenteditable="true"></span></div>
+            <div class="f-sub">同比：发现X 2027　<span class="fill sm" data-k="ctr_yoy" contenteditable="true"></span></div>
           </div>
           <div class="f">
             <div class="f-label">商详页浏览时长</div>
-            <input class="fin lg" data-k="dwell" placeholder="待补充" autocomplete="off">
-            <div class="f-sub">同比：X2027 上市前　
-              <input class="fin sm" data-k="dwell_yoy" placeholder="待补充" autocomplete="off" style="width:46%;margin-left:4px">
-            </div>
+            <div class="f-val"><span class="fill lg" data-k="dwell" contenteditable="true"></span></div>
+            <div class="f-sub">同比：X2027 上市前　<span class="fill sm" data-k="dwell_yoy" contenteditable="true"></span></div>
           </div>
         </div>
       </div>
@@ -294,8 +248,8 @@
           <div class="p-item"><div class="k">视频计划 / 已上线</div><div class="v">10 期 / 3 期</div></div>
           <div class="p-item"><div class="k">动态宣传</div><div class="v">17 条　已全部发出</div></div>
           <div class="p-item"><div class="k">互动（点赞 / 评论）</div><div class="v">165 ｜ 18</div></div>
-          <div class="p-item"><div class="k">平台搜索</div><input class="fin md" data-k="bili_search" placeholder="待补充" autocomplete="off"></div>
-          <div class="p-item"><div class="k">进店</div><input class="fin md" data-k="bili_sales" placeholder="待补充" autocomplete="off"></div>
+          <div class="p-item"><div class="k">平台搜索</div><div class="v"><span class="fill md" data-k="bili_search" contenteditable="true"></span></div></div>
+          <div class="p-item"><div class="k">进店</div><div class="v"><span class="fill md" data-k="bili_sales" contenteditable="true"></span></div></div>
         </div>
       </div>
 
@@ -308,8 +262,8 @@
         <div class="p-body">
           <div class="p-item"><div class="k">星图上线</div><div class="v">3 条</div></div>
           <div class="p-item"><div class="k">新增 A3</div><div class="v">5 万</div></div>
-          <div class="p-item"><div class="k">平台搜索</div><input class="fin md" data-k="dy_search" placeholder="待补充" autocomplete="off"></div>
-          <div class="p-item"><div class="k">进店</div><input class="fin md" data-k="dy_sales" placeholder="待补充" autocomplete="off"></div>
+          <div class="p-item"><div class="k">平台搜索</div><div class="v"><span class="fill md" data-k="dy_search" contenteditable="true"></span></div></div>
+          <div class="p-item"><div class="k">进店</div><div class="v"><span class="fill md" data-k="dy_sales" contenteditable="true"></span></div></div>
         </div>
       </div>
 
@@ -323,7 +277,7 @@
           <div class="p-item"><div class="k">核心问题</div><div class="v" style="font-size:12.5px;line-height:1.5">「RGB–Mini LED 电视推荐」<br>「护眼电视推荐」</div></div>
           <div class="p-item"><div class="k">发文 / 计划</div><div class="v">4 篇 / 40 篇</div></div>
           <div class="p-item"><div class="k">已审核</div><div class="v">4 篇</div></div>
-          <div class="p-item"><div class="k">露出率</div><input class="fin md" data-k="geo_rate" placeholder="待补充" autocomplete="off"></div>
+          <div class="p-item"><div class="k">露出率</div><div class="v"><span class="fill md" data-k="geo_rate" contenteditable="true"></span></div></div>
         </div>
       </div>
     </div>
@@ -336,7 +290,7 @@
         <div class="f"><div class="f-label">日完成率</div><div class="f-val">100<small>%</small></div></div>
         <div class="f">
           <div class="f-label">10月累计完成率</div>
-          <input class="fin lg" data-k="onsite_month" placeholder="待补充" autocomplete="off">
+          <div class="f-val"><span class="fill lg" data-k="onsite_month" contenteditable="true"></span></div>
         </div>
       </div>
     </div>
@@ -375,33 +329,33 @@
         <div class="fk">评论维护</div>
         <div class="fv">33 条</div>
         <div class="fk">KOC</div>
-        <input class="fin md" data-k="koc" placeholder="待补充" autocomplete="off">
+        <div class="fv"><span class="fill md" data-k="koc" contenteditable="true"></span></div>
       </div>
       <div class="vcard">
         <h4>正面反馈</h4>
-        <input class="fin md" data-k="pos_fb" placeholder="待补充" autocomplete="off">
+        <div class="fv"><span class="fill md" data-k="pos_fb" contenteditable="true"></span></div>
         <h4 style="margin-top:18px">负面反馈</h4>
-        <input class="fin md" data-k="neg_fb" placeholder="待补充" autocomplete="off">
+        <div class="fv"><span class="fill md" data-k="neg_fb" contenteditable="true"></span></div>
       </div>
       <div class="vcard">
         <h4>词下占位情况</h4>
         <div class="big">覆盖率 54<small style="font-size:13px;font-weight:500">%</small></div>
         <div class="fk">占位词数</div>
-        <input class="fin md" data-k="words_count" placeholder="待补充" autocomplete="off">
+        <div class="fv"><span class="fill md" data-k="words_count" contenteditable="true"></span></div>
       </div>
     </div>
   </section>
 
-  <div class="hint" style="background:#FBF7EF;border-color:#EFE4CE;color:#5A4A2E">
-    填写人：<b id="who-show">未填写</b>　·　已填 <b id="filled-count">0</b> 项　·　
-    填写内容只存在你自己的浏览器里，草草看不到——<b>记得点「生成分享链接」发回</b>。
+  <div class="actions">
+    <span class="st">空白的灰色字段可直接点开填写</span>
+    <button id="btn-copy" class="abtn">复制填写结果</button>
+    <button id="btn-link" class="abtn dark">生成填写链接</button>
   </div>
 
   <div class="foot">
     <div class="legend">
       <span><i class="up">红</i> = 环比提升</span>
       <span><i class="down">绿</i> = 环比下降</span>
-      <span>虚线框 = 待填写</span>
     </div>
     <div style="text-align:right">
       Vidda 发现X RGB　数字营销<br>
@@ -414,113 +368,93 @@
 <script>
 (function(){
   var KEY = 'rgb-daily-2026-10-21';
-  var fields = Array.prototype.slice.call(document.querySelectorAll('.fin'));
-  var whoEl = document.getElementById('who');
-  var toast = document.getElementById('toast');
-  var whoShow = document.getElementById('who-show');
-  var cntEl = document.getElementById('filled-count');
+  var fields = Array.prototype.slice.call(document.querySelectorAll('.fill'));
 
-  function toastMsg(t){
-    toast.textContent = t; toast.classList.add('show');
-    clearTimeout(toast._t); toast._t = setTimeout(function(){ toast.classList.remove('show'); }, 2200);
+  function toast(msg, ok){
+    var old = document.getElementById('__t');
+    if(old) old.remove();
+    var d = document.createElement('div');
+    d.id = '__t';
+    d.textContent = msg;
+    d.style.cssText = 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);' +
+      'background:' + (ok===false?'#B4452F':'#1A1917') + ';color:#fff;font-size:12.5px;' +
+      'font-weight:600;padding:9px 18px;border-radius:8px;z-index:99;' +
+      'box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s';
+    document.body.appendChild(d);
+    requestAnimationFrame(function(){ d.style.opacity = 1; });
+    setTimeout(function(){ d.style.opacity = 0; setTimeout(function(){ d.remove(); }, 250); }, 2000);
   }
   function collect(){
-    var o = {who: whoEl.value.trim(), data:{}};
+    var o = {};
     fields.forEach(function(el){
-      var v = el.value.trim();
-      if(v) o.data[el.dataset.k] = v;
+      var v = el.textContent.trim();
+      if(v) o[el.dataset.k] = v;
     });
     return o;
   }
-  function filledCount(){
-    return fields.filter(function(el){ return el.value.trim(); }).length;
-  }
-  function refreshMeta(){
-    whoShow.textContent = whoEl.value.trim() || '未填写';
-    cntEl.textContent = filledCount();
-    document.body.classList.toggle('filling', filledCount() > 0);
+  function paint(el){
+    el.classList.toggle('has', !!el.textContent.trim());
   }
   function save(){
     try{ localStorage.setItem(KEY, JSON.stringify(collect())); }catch(e){}
-    refreshMeta();
   }
-  function apply(obj){
-    if(!obj) return;
-    if(obj.who) whoEl.value = obj.who;
-    fields.forEach(function(el){
-      if(obj.data && obj.data[el.dataset.k] != null) el.value = obj.data[el.dataset.k];
-    });
-    refreshMeta();
-  }
-  function b64encode(str){ return btoa(unescape(encodeURIComponent(str))); }
-  function b64decode(str){ return decodeURIComponent(escape(atob(str))); }
+  function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s))); }
 
-  // 1) 优先读分享链接里的数据
+  var loaded = null;
   var m = location.hash.match(/[#&]d=([^&]+)/);
-  if(m){
-    try{ apply(JSON.parse(b64decode(m[1]))); }catch(e){}
-  } else {
-    try{
-      var raw = localStorage.getItem(KEY);
-      if(raw) apply(JSON.parse(raw));
-    }catch(e){}
+  if(m){ try{ loaded = JSON.parse(b64d(m[1])); }catch(e){} }
+  if(!loaded){ try{ loaded = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){} }
+  if(loaded){
+    fields.forEach(function(el){
+      if(loaded[el.dataset.k] != null){ el.textContent = loaded[el.dataset.k]; paint(el); }
+    });
   }
 
-  fields.forEach(function(el){ el.addEventListener('input', save); });
-  whoEl.addEventListener('input', save);
+  fields.forEach(function(el){
+    paint(el);
+    el.addEventListener('input', function(){ paint(el); save(); });
+    el.addEventListener('blur', save);
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); el.blur(); }
+    });
+  });
 
-  // 复制填写结果
   document.getElementById('btn-copy').addEventListener('click', function(){
-    var o = collect();
-    var labels = {};
+    var o = collect(), labels = {};
     fields.forEach(function(el){
       var box = el.closest('.f') || el.closest('.p-item') || el.closest('.vcard');
       var k = box ? (box.querySelector('.f-label') || box.querySelector('.k') || box.querySelector('h4')) : null;
       labels[el.dataset.k] = k ? k.textContent.trim() : el.dataset.k;
     });
-    var lines = ['RGB 新品流量日报 · 10月22日（数据周期 10/21）',
-                 '填写人：' + (o.who || '未填写'), ''];
-    if(Object.keys(o.data).length === 0){ lines.push('（尚未填写任何内容）'); }
-    Object.keys(o.data).forEach(function(k){
-      lines.push((labels[k] || k) + '：' + o.data[k]);
-    });
+    var keys = Object.keys(o);
+    if(!keys.length){ toast('还没有填写内容', false); return; }
+    var lines = ['RGB 新品流量日报 · 10月22日（数据周期 10/21）',''];
+    keys.forEach(function(k){ lines.push((labels[k]||k) + '：' + o[k]); });
     var text = lines.join('\n');
+    var done = function(){ toast('已复制，可直接粘贴'); };
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(function(){ toastMsg('已复制，可直接粘贴发回'); },
-        function(){ fallbackCopy(text); });
-    } else { fallbackCopy(text); }
+      navigator.clipboard.writeText(text).then(done, function(){ legacy(text, done); });
+    } else { legacy(text, done); }
   });
-  function fallbackCopy(text){
+  function legacy(text, done){
     var ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); toastMsg('已复制，可直接粘贴发回'); }
-    catch(e){ toastMsg('复制失败，请手动选择文字'); }
-    document.body.removeChild(ta);
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){ toast('复制失败', false); }
+    ta.remove();
   }
 
-  // 生成分享链接
   document.getElementById('btn-link').addEventListener('click', function(){
     var o = collect();
-    if(Object.keys(o.data).length === 0){ toastMsg('还没填内容'); return; }
-    var url = location.origin + location.pathname + '#d=' + b64encode(JSON.stringify(o));
+    if(!Object.keys(o).length){ toast('还没有填写内容', false); return; }
+    var url = location.origin + location.pathname + '#d=' + b64e(JSON.stringify(o));
     history.replaceState(null, '', url);
+    var done = function(){ toast('链接已复制，直接发回即可'); };
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(url).then(function(){ toastMsg('链接已复制，发给草草即可'); },
-        function(){ toastMsg('链接已生成，从地址栏复制'); });
-    } else { toastMsg('链接已生成，从地址栏复制'); }
+      navigator.clipboard.writeText(url).then(done, function(){ toast('已生成，请从地址栏复制'); });
+    } else { toast('已生成，请从地址栏复制'); }
   });
-
-  // 清空
-  document.getElementById('btn-clear').addEventListener('click', function(){
-    if(!confirm('清空所有已填内容？')) return;
-    fields.forEach(function(el){ el.value = ''; });
-    whoEl.value = '';
-    try{ localStorage.removeItem(KEY); }catch(e){}
-    history.replaceState(null, '', location.origin + location.pathname);
-    refreshMeta(); toastMsg('已清空');
-  });
-
-  refreshMeta();
 })();
 </script>
 </body>
