@@ -230,7 +230,7 @@ function writeData(data, captureTrends = false) {
     showToast('本地空间不足，请移除部分截图后再保存');
   }
 }
-const CAMPAIGN = { label: '双十一', start: '2026-10-07', end: '2026-11-11' };
+const CAMPAIGN = { label: '10月冲刺', start: '2026-10-20', end: '2026-10-31' };
 function campaignProgress(dateStr) {
   const base = dateStr || localDateKey();
   const start = new Date(`${CAMPAIGN.start}T00:00:00`);
@@ -522,7 +522,8 @@ function initReport() {
   document.querySelector('#t1-date').textContent = `数据周期：${formatDate(tMinusOne(d.reportDate))}（T-1）`;
   document.querySelector('#report-stage').textContent = `${d.stage || '阶段待定'}${has(d.owner) ? ` · ${d.owner}` : ''}`;
 
-  const campaign = campaignProgress(d.reportDate);
+  // 时间进度按数据日（T-1）计算，与日完成率口径一致
+  const campaign = campaignProgress(tMinusOne(d.reportDate));
   root.innerHTML = `
     <section class="card" aria-label="核心指标">
       <div class="card-head"><div><div class="card-kicker">01 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
@@ -554,7 +555,7 @@ function initReport() {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><div><div class="card-kicker">02 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">02 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 数据日第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
       <div class="channel-grid">
         ${channel('红书', d, 'redbook', { unit: ' 篇' })}
         ${channel('B站', d, 'bili', { unit: ' 条' })}
@@ -750,7 +751,7 @@ function toPlainText(d) {
   const tr = v => { if (!has(v)) return ''; const n = Number(v); return Number.isFinite(n) ? `日环比 ${n > 0 ? '+' : ''}${n}%` : ''; };
   const trRaw = v => { if (!has(v)) return ''; const n = Number(v); return Number.isFinite(n) ? `${n > 0 ? '+' : ''}${n}%` : ''; };
   const section = (title, body) => body ? `\n\n${title}\n${body}` : '';
-  const cp = campaignProgress(d.reportDate);
+  const cp = campaignProgress(tMinusOne(d.reportDate));
   const name = d.productName || 'Vidda发现X RGB';
 
   const chLine = (label, key, opts = {}) => {
