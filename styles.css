@@ -195,7 +195,7 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .shot-view { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
 .shot-view img { display: block; height: 104px; width: auto; max-width: 190px; object-fit: cover; border: 1px solid var(--line); border-radius: 9px; cursor: zoom-in; }
 .shot-view.voice { flex-direction: row; flex-wrap: wrap; }
-.shot-view.voice img { height: 168px; width: auto; max-width: 300px; object-fit: cover; border-radius: 10px; }
+.shot-view.voice img { height: 200px; width: auto; max-width: 400px; object-fit: contain; background: #fff; border-radius: 10px; }
 .num-hl { font-weight: 800; color: #191817; background: #ffe9a8; padding: 0 3px; border-radius: 3px; }
 .shot-field { gap: 8px; }
 .shot-preview { display: flex; flex-wrap: wrap; gap: 10px; }
