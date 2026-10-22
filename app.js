@@ -19,9 +19,10 @@ const FIELD_SECTIONS = [
       ['modelSearchDoD', '型号词搜索日环比', 'number', '%'],
       ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'],
       ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%'],
-      ['searchCtr', '搜索点击率', 'number', '%'],
-      ['searchCtrBenchmark', '控比发现 X2027', 'number', '%'],
-      ['detailDuration', '商详页流量时长', 'text', '如：2m 36s']
+      ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'],
+      ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'],
+      ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'],
+      ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
     ]
   },
   {
@@ -92,8 +93,8 @@ const MODULE_SECTIONS = [
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况。', fields: [
     ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchDoD', '型号词搜索日环比', 'number', '%'], ['modelSearchDailyRate', '型号词搜索日完成率', 'number', '%'], ['modelSearchMonthlyRate', '10 月累完成率', 'number', '%']
   ]},
-  { id: 'search-detail', title: '搜索与商详', desc: '填写搜索点击率、商详时长及对应控比。', fields: [
-    ['searchCtr', '搜索点击率', 'number', '%'], ['searchCtrBenchmark', '控比发现 X2027', 'number', '%'], ['detailDuration', '商详页流量时长', 'text', '如：2m 36s']
+  { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
+    ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
   ]},
   { id: 'redbook', title: '红书', desc: '填写红书计划、上线、进店、成交与费用进度。', fields: [
     ['redbookPlanKol', '红书 · 计划 KOL', 'number', '位'], ['redbookPlanKoc', '红书 · 计划 KOC', 'number', '位'], ['redbookOnline', '红书 · 已上线', 'number', '篇'], ['redbookStore', '红书 · 进店次数', 'number', '次'], ['redbookDoD', '红书 · 进店日环比', 'number', '%'], ['redbookGmv', '红书 · 成交 GMV', 'text', '如：12.6 万'], ['redbookCost', '红书 · 费用消耗进度', 'number', '%']
@@ -177,7 +178,7 @@ function formatDuration(sec) {
 const TREND_METRICS = {
   modelSearch: { label: '型号词搜索', unit: '', parse: v => parseMetricNumber(v), fmt: v => Math.round(v).toLocaleString('zh-CN') },
   searchCtr: { label: '搜索点击率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${Number(v.toFixed(1))}%` },
-  detailDuration: { label: '商详页流量时长', unit: '', parse: v => parseDuration(v), fmt: v => formatDuration(v) }
+  detailDuration: { label: '平均停留时长', unit: '秒', parse: v => parseMetricNumber(v), fmt: v => `${v}秒` }
 };
 function withTrendHistory(data, previous = {}, capture = false) {
   const legacy = Array.isArray(previous._modelSearchHistory) ? { modelSearch: previous._modelSearchHistory } : {};
@@ -391,11 +392,11 @@ function initReport() {
           <div class="metric-group-label">搜索与商详表现</div>
           <div class="metrics comparison-grid">
             <div class="benchmark-col">
-              ${metricWithBenchmark('搜索点击率', val(d, 'searchCtr', '%'), '控比 · 发现 X2027', val(d, 'searchCtrBenchmark', '%'))}
+              ${metricWithBenchmark('搜索点击率', val(d, 'searchCtr', '%'), '控比 · 发现X 2027（同期）', val(d, 'searchCtrBenchmark', '%'))}
               ${trendPanel('searchCtr', d, { width: 540 })}
             </div>
             <div class="benchmark-col">
-              ${metric('商详页流量时长', val(d, 'detailDuration'))}
+              ${metricWithBenchmark('平均停留时长', val(d, 'detailDuration'), '控比 · 发现X 2027（同期）', val(d, 'detailDurationBenchmark'))}
               ${trendPanel('detailDuration', d, { width: 540 })}
             </div>
           </div>
@@ -616,7 +617,7 @@ function toPlainText(d) {
   return `【${name} · 流量日报】${formatDate(d.reportDate, true)}\n数据周期：${formatDate(tMinusOne(d.reportDate), true)}（T-1）${cp ? `｜时间进度 ${cp.percent}%（第 ${cp.passedDays}/${cp.totalDays} 天）` : ''}`
     + section('① 核心流量', [
         bits([item('型号词搜索', d.modelSearch), tr(d.modelSearchDoD), item('日完成率', d.modelSearchDailyRate, '%'), item('10月累完成率', d.modelSearchMonthlyRate, '%')]),
-        bits([item('搜索点击率', d.searchCtr, '%'), item('控比发现X2027', d.searchCtrBenchmark, '%'), item('商详时长', d.detailDuration)])
+        bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [
         chLine('红书', 'redbook', { koc: true, onlineUnit: ' 篇' }),

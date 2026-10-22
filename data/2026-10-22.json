@@ -1,5 +1,5 @@
 {
-  "reportDate": "2026-10-21",
+  "reportDate": "2026-10-22",
   "productName": "Vidda发现X RGB",
   "owner": "",
   "stage": "上市期",
@@ -7,9 +7,10 @@
   "modelSearchDoD": "",
   "modelSearchDailyRate": "",
   "modelSearchMonthlyRate": "",
-  "searchCtr": "",
-  "searchCtrBenchmark": "",
-  "detailDuration": "",
+  "searchCtr": "4.70",
+  "searchCtrBenchmark": "20.38",
+  "detailDuration": "49秒",
+  "detailDurationBenchmark": "54秒",
 
   "redbookPlanKol": "2",
   "redbookPlanKoc": "8",
@@ -53,5 +54,5 @@
 
   "trafficAdjustment": "",
   "reputationAdjustment": "",
-  "trafficDiagnosis": "小红书搜索指数 180、环比 ▲28%，但单日 CPUV 51.53、环比 ▼23%，属「搜索起量、进店转化未跟上」，重点看首图与笔记落地页的一致性。\n抖音新增 A3 5 万，星图刚上线仍处冷启，48 小时内看跑量再看 A3 成本。\nB站视频上线 3/10 期，动态宣传 17 条已全部发出，点赞 165、评论 18。\nGEO 已审 4/40 篇，露出率数据尚未回收，暂无法判断。"
+  "trafficDiagnosis": "搜索点击率 4.70%（发现X 2027 同期 20.38%），平均停留时长 49秒（同期 54秒）——目前发现X RGB 流量主要来自 85寸电视、电视机、电视等行业大词，流量不精准，CTR 与停留时长均明显低于同期竞品。\n小红书搜索指数 180、环比 ▲28%，但单日 CPUV 51.53、环比 ▼23%，属「搜索起量、进店转化未跟上」，重点看首图与笔记落地页的一致性。\n抖音新增 A3 5 万，星图刚上线仍处冷启，48 小时内看跑量再看 A3 成本。\nB站视频上线 3/10 期，动态宣传 17 条已全部发出，点赞 165、评论 18。\nGEO 已审 4/40 篇，露出率数据尚未回收，暂无法判断。"
 }
