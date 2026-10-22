@@ -19,6 +19,29 @@
     });
   }
 
+  // 趋势数据按日期合并：b 的同日期点优先，a 独有的日期保留（防止本地打点覆盖归档历史）
+  function mergeTrends(a, b) {
+    var keys = {};
+    [a, b].forEach(function (t) { Object.keys(t || {}).forEach(function (k) { keys[k] = 1; }); });
+    var out = {};
+    Object.keys(keys).forEach(function (k) {
+      var map = {};
+      [a, b].forEach(function (t) {
+        (t && t[k] || []).forEach(function (p) {
+          if (p && p.date && isFinite(Number(p.value))) map[p.date] = Number(p.value);
+        });
+      });
+      var list = Object.keys(map).sort().map(function (d) { return { date: d, value: map[d] }; });
+      if (list.length) out[k] = list.slice(-30);
+    });
+    return out;
+  }
+  function mergeData(a, b) {
+    var merged = Object.assign({}, a || {}, b || {});
+    merged._trends = mergeTrends(a && a._trends, b && b._trends);
+    return merged;
+  }
+
   // 把当前 localStorage 里的日报按「日报日期」存一份本地快照（空数据不存）
   function snapshot() {
     try {
@@ -26,7 +49,7 @@
       if (!d || !d.reportDate || !hasContent(d)) return;
       var a = readArch();
       var prev = a[d.reportDate] || {};
-      a[d.reportDate] = Object.assign({}, prev, d);
+      a[d.reportDate] = mergeData(prev, d);
       writeArch(a);
     } catch (e) {}
   }
@@ -50,8 +73,24 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; })
       .then(function (j) {
-        if (j) render(date, Object.assign({}, snap || {}, j));
+        if (j) render(date, mergeData(snap || {}, j));
         else render(date, snap || { reportDate: date, productName: 'Vidda发现X RGB', stage: '上市期' });
+      });
+  }
+
+  // 本地已有内容时，仍要把归档里的趋势历史并进来（本地字段值优先，趋势按日期合并）
+  function fetchMerge(date) {
+    fetch('data/' + date + '.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (j) {
+        if (!j) return;
+        var saved = {};
+        try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+        var merged = Object.assign({}, j, saved, { reportDate: saved.reportDate || date });
+        merged._trends = mergeTrends(j && j._trends, saved && saved._trends);
+        localStorage.setItem(STORE, JSON.stringify(merged));
+        if (typeof initReport === 'function') initReport();
       });
   }
 
@@ -95,8 +134,9 @@
         (mf.dates || []).forEach(function (d) { if (list.indexOf(d) < 0) list.push(d); });
         list.sort().reverse();
         build(list, cur);
-        // 本地没有任何填写内容时，自动加载该日期的归档数据（外发链接首次打开也能看到内容）
+        // 本地没有填写内容 → 拉归档渲染；有内容 → 也把归档里的趋势历史并进来
         if (m || !local) go(cur);
+        else fetchMerge(cur);
       });
   }
 
