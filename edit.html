@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vidda发现X RGB 流量日报填写页">
+  <title>填写数据 · Vidda发现X RGB 流量日报</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html"><i class="brand-mark"></i><span>RGB DAILY</span><span>Vidda发现X RGB 流量日报</span></a>
+      <nav class="nav" aria-label="页面导航"><a href="index.html">日报展示</a><a class="active" href="edit.html">填写数据</a></nav>
+    </div>
+  </header>
+  <main class="shell editor-wrap">
+    <aside class="side-index">
+      <div class="card-kicker" style="padding:0 11px 7px">填写目录</div>
+      <nav id="section-nav"></nav>
+      <div class="side-help">数据会自动保存在当前浏览器。完成后点击“保存并查看”，即可生成适合转发的展示页。</div>
+    </aside>
+    <div class="editor-main">
+      <div class="editor-title">
+        <div><div class="eyebrow">Data Input</div><h1>填写日报</h1><p class="subtitle" id="t1-hint">本日报采集 T-1 数据</p></div>
+        <a class="btn secondary" href="index.html">返回展示页</a>
+      </div>
+      <form id="report-form"></form>
+      <div class="editor-actions">
+        <span class="save-state" id="save-state">修改后自动保存</span>
+        <div class="actions"><button class="btn danger" type="button" id="reset-btn">清空</button><button class="btn secondary" type="button" id="save-btn">仅保存</button><button class="btn blue" type="button" id="preview-btn">保存并查看</button></div>
+      </div>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js?v=20261021n"></script>
+</body>
+</html>
