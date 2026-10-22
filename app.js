@@ -575,7 +575,7 @@ function initReport() {
   const campaign = campaignProgress(tMinusOne(d.reportDate));
   root.innerHTML = `
     <section class="card" aria-label="核心指标">
-      <div class="card-head"><div><div class="card-kicker">01 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
+      <div class="card-head"><div><div class="card-kicker">02 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
       <div class="metric-groups">
         <div class="metric-group">
           <div class="metric-group-label">型号词表现${has(d.modelSearchTarget) ? `<small>${CAMPAIGN.start.slice(5).replace('-', '/')}–${CAMPAIGN.end.slice(5).replace('-', '/')} 目标 ${esc(d.modelSearchTarget)}${dailyTargetOf(d) ? ` · 日均 ${Math.round(dailyTargetOf(d)).toLocaleString('zh-CN')}` : ''}</small>` : ''}</div>
@@ -603,7 +603,7 @@ function initReport() {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><div><div class="card-kicker">02 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 数据日第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">03 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 数据日第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
       <div class="channel-grid">
         ${channel('红书', d, 'redbook', { unit: ' 篇' })}
         ${channel('B站', d, 'bili', { unit: ' 条' })}
@@ -620,7 +620,7 @@ function initReport() {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><div><div class="card-kicker">03 / REPUTATION & VOICE</div><h2>口碑与用户原声</h2></div><div class="accent-line amber"></div></div>
+      <div class="card-head"><div><div class="card-kicker">04 / REPUTATION & VOICE</div><h2>口碑与用户原声</h2></div><div class="accent-line amber"></div></div>
       <div class="subsection is-first">
         <div class="subsection-title"><span>口碑进度</span><small>REPUTATION PROGRESS</small></div>
         <div class="metrics rep-metrics">
@@ -642,12 +642,15 @@ function initReport() {
       ${(() => { const g = shotBlock(d.voiceBadShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>负面原声</span><small>NEGATIVE VOICE</small></div>${g}</div>` : ''; })()}
     </section>
     ${actionCard(d)}
-    <section class="card">
-      <div class="card-head"><div><div class="card-kicker">05 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
-      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
-      ${shotBlock(d.diagShot)}
-    </section>
   `;
+
+  const diagSection = document.createElement('section');
+  diagSection.className = 'card';
+  diagSection.innerHTML = `
+      <div class="card-head"><div><div class="card-kicker">01 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
+      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
+      ${shotBlock(d.diagShot)}`;
+  root.prepend(diagSection);
 
   root.querySelectorAll('.shot-view img').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.src));
@@ -773,7 +776,7 @@ function bindRichBar(note) {
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'rich-bar';
-    bar.innerHTML = '<button type="button" data-c="#d8382f">红</button><button type="button" data-c="#2357ff">蓝</button><button type="button" data-c="clear">清除</button>';
+    bar.innerHTML = '<button type="button" data-c="#d8382f">红</button><button type="button" data-c="#2357ff">蓝</button><button type="button" data-c="bold">加粗</button><button type="button" data-c="clear">清除</button>';
     document.body.appendChild(bar);
     bar.addEventListener('mousedown', event => event.preventDefault());
     bar.addEventListener('click', event => {
@@ -783,6 +786,7 @@ function bindRichBar(note) {
       if (!sel.rangeCount || sel.isCollapsed) { bar.hidden = true; return; }
       document.execCommand('styleWithCSS', false, false);
       if (btn.dataset.c === 'clear') document.execCommand('removeFormat');
+      else if (btn.dataset.c === 'bold') document.execCommand('bold');
       else { document.execCommand('bold'); document.execCommand('foreColor', false, btn.dataset.c); }
       commitField('trafficDiagnosis', normalizeDiagnosis(note.innerHTML));
       bar.hidden = true;
@@ -818,7 +822,7 @@ function actionCard(d) {
   ].filter(Boolean);
   if (!items.length) return '';
   return `<section class="card">
-      <div class="card-head"><div><div class="card-kicker">04 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">05 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
       ${items.map((item, index) => `<div class="subsection${index === 0 ? ' is-first' : ''}"><div class="subsection-title"><span>${item.tag}</span><small>${item.en}</small></div>${noteBlock('动作调整', item.value, 'note negative', item.field)}</div>`).join('')}
     </section>`;
 }
