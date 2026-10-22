@@ -87,8 +87,18 @@
         if (!j) return;
         var saved = {};
         try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
-        var merged = Object.assign({}, j, saved, { reportDate: saved.reportDate || date });
+        // 归档比本地保存时间新 → 归档字段优先；否则本地编辑优先（趋势历史始终合并）
+        var archiveNewer = false;
+        if (j._archiveStamp) {
+          var at = Date.parse(j._archiveStamp);
+          var st = saved._savedAt ? Date.parse(saved._savedAt) : 0;
+          if (isFinite(at)) archiveNewer = at > (isFinite(st) ? st : 0);
+        }
+        var merged = archiveNewer
+          ? Object.assign({}, saved, j, { reportDate: saved.reportDate || date })
+          : Object.assign({}, j, saved, { reportDate: saved.reportDate || date });
         merged._trends = mergeTrends(j && j._trends, saved && saved._trends);
+        merged._archiveStamp = j._archiveStamp;
         localStorage.setItem(STORE, JSON.stringify(merged));
         if (typeof initReport === 'function') initReport();
       });

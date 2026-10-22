@@ -225,7 +225,7 @@ function writeData(data, captureTrends = false) {
   // 表单里没有的历史字段（如改版前的进店/GMV/费用）要保留，不能被自动保存抹掉
   const merged = { ...previous, ...data };
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(merged, previous, captureTrends), _autoDateStamp: localDateKey() }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...withTrendHistory(merged, previous, captureTrends), _autoDateStamp: localDateKey(), _savedAt: new Date().toISOString() }));
   } catch {
     showToast('本地空间不足，请移除部分截图后再保存');
   }
