@@ -863,10 +863,7 @@ function stripTags(v) { return String(v).replace(/<[^>]*>/g, ''); }
 function normalizeDiagnosis(html) { return String(html).replace(/<b class="num-hl">([^<]*)<\/b>/g, '$1').trim(); }
 function diagnosisHtml(v) {
   if (!has(v)) return '<span class="empty-state">待补充</span>';
-  if (/<[a-z]/i.test(v)) {
-    return normalizeDiagnosis(v).replace(/>([^<]+)</g, (m, seg) => '>' + seg.replace(NUM_RE, '<b class="num-hl">$1$2</b>') + '<');
-  }
-  return hlNums(v);
+  return /<[a-z]/i.test(v) ? normalizeDiagnosis(v) : esc(v);
 }
 function commitField(field, raw) {
   const current = readData();
