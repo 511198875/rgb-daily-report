@@ -180,6 +180,7 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 
 .note { border-left: 3px solid var(--blue); padding: 3px 0 3px 16px; line-height: 1.75; color: #353943; white-space: pre-wrap; }
 .note.negative { border-color: var(--red); }
+.note.positive { border-color: #2aa06a; }
 .note + .note { margin-top: 12px; }
 .note-label { display: block; color: var(--muted); font-size: 12px; font-weight: 800; margin-bottom: 2px; }
 .empty-state { color: #aaa9a4; font-size: 14px; }

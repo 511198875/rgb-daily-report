@@ -74,9 +74,9 @@ const FIELD_SECTIONS = [
       ['negQuality', '负面 · 产品质量', 'number', '条'],
       ['negAfterSale', '负面 · 产品售后', 'number', '条'],
       ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'],
-      ['voiceGoodShots', '用户原声 · 正面截图（可多张）', 'images'],
-      ['voiceNeutralShots', '用户原声 · 中性截图（可多张）', 'images'],
-      ['voiceBadShots', '用户原声 · 负面截图（可多张）', 'images']
+      ['voiceGoodText', '用户原声 · 正面内容', 'textarea', '正面评论摘录，多条用换行分隔'],
+      ['voiceNeutralText', '用户原声 · 中性内容', 'textarea', '中性评论摘录，多条用换行分隔'],
+      ['voiceBadText', '用户原声 · 负面内容', 'textarea', '负面评论摘录，多条用换行分隔']
     ]
   },
   {
@@ -120,7 +120,7 @@ const MODULE_SECTIONS = [
     ['contentPlan', '站内内容 · 计划', 'number', '篇'], ['contentOnline', '站内内容 · 已上线', 'number', '篇'], ['contentTraffic', '站内内容 · 内容流量', 'text', '如：126,500'], ['contentDailyRate', '站内内容 · 日完成率', 'number', '%'], ['contentMonthlyRate', '站内内容 · 10 月累完成率', 'number', '%']
   ]},
   { id: 'reputation', title: '口碑与用户原声', desc: '填写口碑进度与评论区负面声音洞察。', fields: [
-    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'], ['voiceGoodShots', '用户原声 · 正面截图（可多张）', 'images'], ['voiceNeutralShots', '用户原声 · 中性截图（可多张）', 'images'], ['voiceBadShots', '用户原声 · 负面截图（可多张）', 'images']
+    ['repPositive', '今日发布正面内容数量', 'number', '条'], ['repComment', '今日维护评论内容数量', 'number', '条'], ['repTop', 'TOP 占比', 'number', '%'], ['repCoverage', '今日覆盖率', 'number', '%'], ['negNew', '负面内容新增数量', 'number', '条'], ['negCompetitor', '负面 · 竞品攻击', 'number', '条'], ['negQuality', '负面 · 产品质量', 'number', '条'], ['negAfterSale', '负面 · 产品售后', 'number', '条'], ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'], ['voiceGoodText', '用户原声 · 正面内容', 'textarea', '正面评论摘录，多条用换行分隔'], ['voiceNeutralText', '用户原声 · 中性内容', 'textarea', '中性评论摘录，多条用换行分隔'], ['voiceBadText', '用户原声 · 负面内容', 'textarea', '负面评论摘录，多条用换行分隔']
   ]},
   { id: 'adjust', title: '动作调整', desc: '记录流量与口碑今日待执行的动作。', fields: [
     ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'], ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
@@ -637,9 +637,9 @@ function initReport() {
           ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary')}
         </div>
       </div>
-      ${(() => { const g = shotBlock(d.voiceGoodShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>正面原声</span><small>POSITIVE VOICE</small></div>${g}</div>` : ''; })()}
-      ${(() => { const g = shotBlock(d.voiceNeutralShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>中性原声</span><small>NEUTRAL VOICE</small></div>${g}</div>` : ''; })()}
-      ${(() => { const g = shotBlock(d.voiceBadShots, 'voice'); return g ? `<div class="subsection"><div class="subsection-title"><span>负面原声</span><small>NEGATIVE VOICE</small></div>${g}</div>` : ''; })()}
+      ${noteBlock('正面原声', d.voiceGoodText, 'note positive', 'voiceGoodText', 'margin-top:14px')}
+      ${noteBlock('中性原声', d.voiceNeutralText, 'note', 'voiceNeutralText', 'margin-top:14px')}
+      ${noteBlock('负面原声', d.voiceBadText, 'note negative', 'voiceBadText', 'margin-top:14px')}
     </section>
     ${actionCard(d)}
   `;
@@ -981,7 +981,10 @@ function toPlainText(d) {
     + section('③ 口碑与用户原声', [
         repBits,
         negLine,
-        has(d.negSummary) ? `负面总结：${d.negSummary}` : ''
+        has(d.negSummary) ? `负面总结：${d.negSummary}` : '',
+        has(d.voiceGoodText) ? `正面原声：${d.voiceGoodText}` : '',
+        has(d.voiceNeutralText) ? `中性原声：${d.voiceNeutralText}` : '',
+        has(d.voiceBadText) ? `负面原声：${d.voiceBadText}` : ''
       ].filter(Boolean).join('\n'))
     + section('④ 动作调整', [
         has(d.trafficAdjustment) ? `流量：${d.trafficAdjustment}` : '',
