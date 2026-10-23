@@ -20,6 +20,7 @@ const FIELD_SECTIONS = [
       ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'],
       ['modelSearchDailyRate', '日完成率（留空自动算）', 'number', '%'],
       ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'],
+      ['a6hModelSearch', '型号词搜索 · 创维A6H（同期）', 'number', '次'],
       ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'],
       ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'],
       ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'],
@@ -99,7 +100,7 @@ const MODULE_SECTIONS = [
     ['reportDate', '日报日期', 'date'], ['productName', '产品 / 项目名', 'text', 'Vidda发现X RGB'], ['owner', '负责人', 'text', '选填'], ['stage', '上市阶段', 'select', ['预热期', '上市期', '稳定期']]
   ]},
   { id: 'model', title: '型号词', desc: '填写型号词搜索及目标完成情况，可上传后台原生截图佐证。', fields: [
-    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'], ['modelShot', '后台原生截图（可多张）', 'images']
+    ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'], ['a6hModelSearch', '型号词搜索 · 创维A6H（同期）', 'number', '次'], ['modelShot', '后台原生截图（可多张）', 'images']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
     ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
@@ -583,6 +584,7 @@ function initReport() {
             ${metric('型号词搜索（T-1）', val(d, 'modelSearch'), 'modelSearch')}
             ${metric('日环比', dodText(autoDod(d, 'modelSearch')) || trend(d.modelSearchDoD))}
             ${metric('10月目标完成率（10.21日-10.31日）', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
+            ${metric('控比 · 创维A6H（同期）', val(d, 'a6hModelSearch', ' 次'), 'a6hModelSearch')}
           </div>
           ${trendPanel('modelSearch', d, { width: 900, height: 200, large: true, open: true })}
           ${shotBlock(d.modelShot)}
@@ -1026,7 +1028,7 @@ function toPlainText(d) {
   const modelDod = dodText(autoDod(d, 'modelSearch'));
   return `【${name} · 流量日报】${formatDate(d.reportDate, true)}\n数据周期：${formatDate(tMinusOne(d.reportDate), true)}（T-1）${cp ? `｜时间进度 ${cp.percent}%（第 ${cp.passedDays}/${cp.totalDays} 天）` : ''}`
     + section('① 核心流量', [
-        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), `10月目标完成率 ${rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate)}`]),
+        bits([item('型号词搜索', d.modelSearch), modelDod ? `日环比 ${modelDod}` : tr(d.modelSearchDoD), `10月目标完成率 ${rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate)}`, item('控比·创维A6H同期', d.a6hModelSearch, ' 次')]),
         bits([item('搜索点击率', d.searchCtr, '%'), item('搜索点击率·2027同期', d.searchCtrBenchmark, '%'), item('平均停留时长', d.detailDuration), item('平均停留时长·2027同期', d.detailDurationBenchmark)])
       ].filter(Boolean).join('\n'))
     + section('② 数字营销', [
