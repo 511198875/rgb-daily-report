@@ -648,7 +648,7 @@ function initReport() {
   diagSection.className = 'card';
   diagSection.innerHTML = `
       <div class="card-head"><div><div class="card-kicker">01 / DIAGNOSIS</div><h2>流量诊断</h2></div><div class="accent-line"></div></div>
-      <div class="note"><span class="note-label">当日诊断</span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
+      <div class="note"><span class="note-label">当日诊断<button type="button" class="auto-btn" id="auto-diagnosis-btn" title="按四段式模板自动生成，生成后可继续手动修改">⚡ 自动分析</button></span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
       ${shotBlock(d.diagShot)}`;
   root.prepend(diagSection);
 
@@ -666,6 +666,13 @@ function initReport() {
   });
   const diagNote = root.querySelector('[data-field="trafficDiagnosis"]');
   if (diagNote) bindRichBar(diagNote);
+  const autoBtn = root.querySelector('#auto-diagnosis-btn');
+  if (autoBtn) autoBtn.addEventListener('click', () => {
+    const cur = readData();
+    writeData({ ...cur, trafficDiagnosis: autoDiagnosis(cur) });
+    initReport();
+    showToast('已按模板自动生成诊断，可继续手动修改');
+  });
 
   document.querySelector('#copy-btn').addEventListener('click', () => copyText(toPlainText(d), '日报文案已复制'));
   document.querySelector('#share-btn').addEventListener('click', () => {
@@ -771,6 +778,7 @@ function shotBlock(raw, cls = '') {
   if (!list.length) return '';
   return `<div class="shot-view${cls ? ` ${cls}` : ''}">${list.map(src => `<img src="${esc(src)}" alt="原生截图">`).join('')}</div>`;
 }
+let richBarPlace = null;
 function bindRichBar(note) {
   let bar = document.getElementById('rich-bar');
   if (!bar) {
@@ -792,6 +800,8 @@ function bindRichBar(note) {
       bar.hidden = true;
       sel.removeAllRanges();
     });
+    document.addEventListener('selectionchange', () => { if (richBarPlace) richBarPlace(); });
+    window.addEventListener('scroll', () => { if (bar) bar.hidden = true; }, { passive: true });
   }
   const place = () => {
     const sel = window.getSelection();
@@ -803,8 +813,7 @@ function bindRichBar(note) {
     bar.style.top = `${Math.max(8, rect.top + window.scrollY - 44)}px`;
     bar.style.left = `${Math.max(12, rect.left + window.scrollX + rect.width / 2 - 70)}px`;
   };
-  document.addEventListener('selectionchange', place);
-  window.addEventListener('scroll', () => { bar.hidden = true; }, { passive: true });
+  richBarPlace = place;
 }
 function openLightbox(src) {  const old = document.getElementById('shot-lightbox');
   if (old) old.remove();
@@ -878,6 +887,45 @@ function diagnosisHtml(v) {
   if (!has(v)) return '<span class="empty-state">待补充</span>';
   return /<[a-z]/i.test(v) ? normalizeDiagnosis(v) : esc(v);
 }
+/* 按固定四段式自动生成当日诊断：型号词 / 站内表现 / 站外表现 / 口碑表现 */
+function autoDiagnosis(d) {
+  const t1 = tMinusOne(d.reportDate);
+  const parts = [];
+  /* ① 型号词 */
+  const dod = autoDod(d, 'modelSearch');
+  if (dod !== null) {
+    if (dod === 0) parts.push(`${formatDate(t1, true)}型号词环比持平，待观察起量。`);
+    else {
+      const trend = dod > 0 ? '提升' : '下降';
+      const judge = dod > 0 && dod < 30 ? '，提升幅度不达预期' : '';
+      parts.push(`${formatDate(t1, true)}型号词${dod > 0 ? '少量' : ''}${trend}，环比${trend}${Math.abs(dod)}%${judge}。`);
+    }
+  }
+  /* ② 站内表现 */
+  const ctr = parseMetricNumber(d.searchCtr), ctrB = parseMetricNumber(d.searchCtrBenchmark);
+  const dur = parseDuration(d.detailDuration), durB = parseDuration(d.detailDurationBenchmark);
+  if (ctr !== null || dur !== null) {
+    let seg = '站内表现：';
+    if (ctr !== null) seg += `搜索点击率${ctr}%${ctrB !== null ? `，${ctr < ctrB ? '低于' : '高于'}发现X同期${ctrB}%` : ''}`;
+    if (dur !== null) seg += `${ctr !== null ? '，' : ''}停留时长${dur}秒${durB !== null ? `，${dur < durB ? '较低于' : '高于'}发现X同期${durB}秒` : ''}`;
+    seg += '。目前发现X RGB流量主要来源85寸电视、电视机、电视等行业大词，流量不精准，持续监测型号词起量后点击率及停留时长变化。';
+    parts.push(seg);
+  }
+  /* ③ 站外表现 */
+  {
+    let seg = '站外表现：站外内容均按规划发出，处于冷启状态，起量慢';
+    if (has(d.geoExposure)) seg += `，GEO相关RGB词露出率${d.geoExposure}%，不达预期，已规划相关内容持续提升`;
+    seg += '。目前站外投流费用已提升日耗30%，配合站内外联动提升型号词搜索量级。';
+    parts.push(seg);
+  }
+  /* ④ 口碑表现 */
+  {
+    const base = has(d.negSummary) ? d.negSummary : '站外用户目前核心关注点在产品技术路线、产品价格与E5Spro对比，部分用户认为定价稍高，询问护眼原理。';
+    const nums = [has(d.repPositive) ? `发布正面内容 ${d.repPositive} 条` : '', has(d.repComment) ? `维护评论 ${d.repComment} 条` : ''].filter(Boolean).join('，');
+    parts.push(`口碑表现：${nums ? `${nums}。` : ''}${base}`);
+  }
+  return parts.join('\n');
+}
 function commitField(field, raw) {
   const current = readData();
   let value = String(raw == null ? '' : raw).replace(/\u00a0/g, ' ').trim();
@@ -887,6 +935,9 @@ function commitField(field, raw) {
   writeData(next, !!TREND_METRICS[field]);
 }
 function bindInlineEdit(root) {
+  /* root 元素跨渲染复用，防重复绑定（否则粘贴/blur 会执行多次，内容重复） */
+  if (root.__inlineEditBound) return;
+  root.__inlineEditBound = true;
   root.addEventListener('blur', event => {
     const el = event.target.closest && event.target.closest('[data-field]');
     if (!el) return;

@@ -206,6 +206,9 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 #rich-bar button[data-c="#d8382f"] { color: #d8382f; }
 #rich-bar button[data-c="#2357ff"] { color: #2357ff; }
 .note-body font { font-weight: 800; }
+.note-label { display: flex; align-items: center; justify-content: space-between; }
+.auto-btn { border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--blue); font-size: 11px; font-weight: 750; padding: 2px 10px; cursor: pointer; }
+.auto-btn:hover { border-color: var(--blue); background: #eef3ff; }
 .shot-field { gap: 8px; }
 .shot-preview { display: flex; flex-wrap: wrap; gap: 10px; }
 .shot-thumb { position: relative; display: inline-block; }
