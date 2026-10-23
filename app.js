@@ -918,11 +918,19 @@ function autoDiagnosis(d) {
     seg += '。目前站外投流费用已提升日耗30%，配合站内外联动提升型号词搜索量级。';
     parts.push(seg);
   }
-  /* ④ 口碑表现 */
+  /* ④ 口碑表现：优先引用已填的三段原声 */
   {
-    const base = has(d.negSummary) ? d.negSummary : '站外用户目前核心关注点在产品技术路线、产品价格与E5Spro对比，部分用户认为定价稍高，询问护眼原理。';
     const nums = [has(d.repPositive) ? `发布正面内容 ${d.repPositive} 条` : '', has(d.repComment) ? `维护评论 ${d.repComment} 条` : ''].filter(Boolean).join('，');
-    parts.push(`口碑表现：${nums ? `${nums}。` : ''}${base}`);
+    const voices = [
+      has(d.voiceGoodText) ? `正面原声：${d.voiceGoodText}` : '',
+      has(d.voiceNeutralText) ? `中性原声：${d.voiceNeutralText}` : '',
+      has(d.voiceBadText) ? `负面原声：${d.voiceBadText}` : ''
+    ].filter(Boolean);
+    let seg = `口碑表现：${nums ? `${nums}。` : ''}`;
+    if (voices.length) seg += voices.join('；');
+    else if (has(d.negSummary)) seg += d.negSummary;
+    else seg += '站外用户目前核心关注点在产品技术路线、产品价格与E5Spro对比，部分用户认为定价稍高，询问护眼原理。';
+    parts.push(seg);
   }
   return parts.join('\n');
 }
