@@ -36,8 +36,17 @@
     });
     return out;
   }
+  // 剔除空字符串字段：空 = 没填过，不应覆盖归档里的真值
+  function nonEmpty(o) {
+    var out = {};
+    Object.keys(o || {}).forEach(function (k) {
+      var v = o[k];
+      if (k.charAt(0) === '_' || Array.isArray(v) || typeof v !== 'string' || v.trim() !== '') out[k] = v;
+    });
+    return out;
+  }
   function mergeData(a, b) {
-    var merged = Object.assign({}, a || {}, b || {});
+    var merged = Object.assign({}, nonEmpty(a), nonEmpty(b));
     merged._trends = mergeTrends(a && a._trends, b && b._trends);
     return merged;
   }
@@ -100,8 +109,8 @@
           if (isFinite(at)) archiveNewer = at > (isFinite(st) ? st : 0);
         }
         var merged = archiveNewer
-          ? Object.assign({}, saved, j, { reportDate: saved.reportDate || date })
-          : Object.assign({}, j, saved, { reportDate: saved.reportDate || date });
+          ? Object.assign({}, nonEmpty(saved), j, { reportDate: saved.reportDate || date })
+          : Object.assign({}, j, nonEmpty(saved), { reportDate: saved.reportDate || date });
         merged._trends = mergeTrends(j && j._trends, saved && saved._trends);
         merged._archiveStamp = j._archiveStamp;
         localStorage.setItem(STORE, JSON.stringify(merged));
