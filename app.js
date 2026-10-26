@@ -213,6 +213,7 @@ function formatDuration(sec) {
 }
 const TREND_METRICS = {
   modelSearch: { label: '型号词搜索', unit: '', parse: v => parseMetricNumber(v), fmt: v => Math.round(v).toLocaleString('zh-CN') },
+  a6hModelSearch: { label: '控比 · 创维A6H（同期）', unit: '', parse: v => parseMetricNumber(v), fmt: v => Math.round(v).toLocaleString('zh-CN') },
   searchCtr: { label: '搜索点击率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${Number(v.toFixed(1))}%` },
   detailDuration: { label: '平均停留时长', unit: '秒', parse: v => parseMetricNumber(v), fmt: v => `${v}秒` },
   redbookTotalOnline: { label: '红书总上线', unit: '篇', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 篇` },
@@ -587,6 +588,7 @@ function initReport() {
             ${metric('控比 · 创维A6H（同期）', val(d, 'a6hModelSearch', ' 次'), 'a6hModelSearch')}
           </div>
           ${trendPanel('modelSearch', d, { width: 900, height: 200, large: true, open: true })}
+          ${trendPanel('a6hModelSearch', d, { width: 900, height: 200 })}
           ${shotBlock(d.modelShot)}
         </div>
         <div class="metric-group secondary">
