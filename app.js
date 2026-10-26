@@ -482,6 +482,14 @@ function initEditor() {
 
   function saveForm(withToast, captureModelSearch = false) {
     const next = Object.fromEntries(new FormData(form).entries());
+    /* 诊断字段是富文本（展示页可标红标蓝）：
+       textarea 只能显示纯文本，若用户没改动文字内容，保留原 HTML，避免自动保存把颜色标签剥掉 */
+    const origDiag = readData().trafficDiagnosis || '';
+    if (origDiag && /<[a-z]/i.test(origDiag)) {
+      const stripped = stripTags(origDiag).replace(/\u00a0/g, ' ').trim();
+      const typed = String(next.trafficDiagnosis || '').replace(/\u00a0/g, ' ').trim();
+      if (stripped === typed) next.trafficDiagnosis = origDiag;
+    }
     writeData(next, captureModelSearch);
     document.querySelector('#save-state').textContent = `已自动保存 · ${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}`;
     if (withToast) showToast('日报已保存');
