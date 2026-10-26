@@ -57,7 +57,10 @@
   function render(date, data) {
     var base = {};
     try { base = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) {}
-    var merged = Object.assign({}, base, data, { reportDate: date });
+    // 同一日期才继承本地未保存的编辑；跨日期以归档为准，避免旧日期的数值串到新日期
+    var merged = base.reportDate === date
+      ? Object.assign({}, base, data, { reportDate: date })
+      : Object.assign({}, data, { reportDate: date });
     localStorage.setItem(STORE, JSON.stringify(merged));
     if (typeof initReport === 'function') initReport();
     var h = location.hash.replace(/[#&]date=[^&]*/, '').replace(/^#&?/, '');
@@ -87,6 +90,8 @@
         if (!j) return;
         var saved = {};
         try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+        // 本地保存的是别的日期 → 不混用，直接按归档渲染
+        if (saved.reportDate !== date) { render(date, j); return; }
         // 归档比本地保存时间新 → 归档字段优先；否则本地编辑优先（趋势历史始终合并）
         var archiveNewer = false;
         if (j._archiveStamp) {
@@ -133,8 +138,9 @@
     try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
     var local = hasContent(saved);
     var m = location.hash.match(/[#&]date=(\d{4}-\d{2}-\d{2})/);
-    var cur = m ? m[1] : (saved.reportDate || today());
-    set[cur] = 1; set[today()] = 1;
+    // 默认打开最新一期（不看本地残留的旧日期）
+    var cur = m ? m[1] : null;
+    set[today()] = 1;
     var list = Object.keys(set).sort().reverse();
 
     fetch('data/manifest.json', { cache: 'no-store' })
@@ -143,9 +149,11 @@
       .then(function (mf) {
         (mf.dates || []).forEach(function (d) { if (list.indexOf(d) < 0) list.push(d); });
         list.sort().reverse();
+        if (!cur || list.indexOf(cur) < 0) cur = list[0] || today();
+        var sameDate = saved.reportDate === cur;
         build(list, cur);
-        // 本地没有填写内容 → 拉归档渲染；有内容 → 也把归档里的趋势历史并进来
-        if (m || !local) go(cur);
+        // 本地没有填写内容、或本地记的是别的日期 → 按归档渲染；同日才合并本地编辑
+        if (m || !local || !sameDate) go(cur);
         else fetchMerge(cur);
       });
   }

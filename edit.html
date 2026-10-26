@@ -33,7 +33,7 @@
     </div>
   </main>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=20261023d"></script>
+  <script src="app.js?v=20261026a"></script>
   <script>
   /* 本机没有任何填写内容时，自动带入当天归档数据，避免打开是空表 */
   (function () {
@@ -44,15 +44,17 @@
     var hasContent = Object.keys(saved).some(function (k) {
       return k.charAt(0) !== '_' && base.indexOf(k) < 0 && String(saved[k]).trim() !== '';
     });
-    if (hasContent || location.search.indexOf('d=') >= 0) return;
+    if (location.search.indexOf('d=') >= 0) return;
     var d = new Date(), p = function (n) { return String(n).padStart(2, '0'); };
     var date = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+    // 本地存的是今天这份就不覆盖；存的是旧日期则带入今天归档，避免编辑到过期数据
+    if (hasContent && saved.reportDate === date) return;
     fetch('data/' + date + '.json', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; })
       .then(function (j) {
         if (!j || !Object.keys(j).length) return;
-        localStorage.setItem(STORE, JSON.stringify(Object.assign({}, saved, j)));
+        localStorage.setItem(STORE, JSON.stringify(Object.assign({}, j, { reportDate: date })));
         location.reload();
       });
   })();
