@@ -103,7 +103,7 @@ const MODULE_SECTIONS = [
     ['modelSearch', '型号词搜索（T-1）', 'text', '如：18,560'], ['modelSearchTarget', '10 月型号词目标', 'number', '次'], ['modelSearchDoD', '型号词搜索日环比（留空自动算）', 'number', '%'], ['modelSearchMonthlyRate', '10月目标完成率（10.21日-10.31日，留空自动算）', 'number', '%'], ['a6hModelSearch', '型号词搜索 · 创维A6H（同期）', 'number', '次'], ['modelShot', '后台原生截图（可多张）', 'images']
   ]},
   { id: 'search-detail', title: '搜索与商详', desc: '搜索点击率与平均停留时长，均对比发现X 2027 同期。', fields: [
-    ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54']
+    ['searchCtr', '搜索点击率 · 发现X RGB', 'number', '%'], ['searchCtrBenchmark', '搜索点击率 · 发现X 2027（同期）', 'number', '%'], ['detailDuration', '平均停留时长 · 发现X RGB', 'text', '秒，如：49'], ['detailDurationBenchmark', '平均停留时长 · 发现X 2027（同期）', 'text', '秒，如：54'], ['cartCvr', '加购转化率 · 发现X RGB', 'number', '%'], ['cartCvrBenchmark', '加购转化率 · 发现X 2027（同期，选填）', 'number', '%']
   ]},
   { id: 'redbook', title: '红书', desc: '填写红书总计划、今日计划、总上线、今日上线与健康度。', fields: [
     ['redbookTotalPlan', '红书 · 总计划', 'number', '篇'], ['redbookTodayPlan', '红书 · 今日计划', 'number', '篇'], ['redbookTotalOnline', '红书 · 总上线', 'number', '篇'], ['redbookTodayOnline', '红书 · 今日上线', 'number', '篇'], ['redbookStore', '红书 · 当日进店', 'number', '次'], ['redbookDoD', '红书 · 进店环比', 'number', '%'], ['redbookCost', '红书 · 消耗进度', 'number', '%'], ['redbookHealth', '红书 · 健康度', 'select', ['正常', '滞后']]
@@ -216,6 +216,7 @@ const TREND_METRICS = {
   a6hModelSearch: { label: '控比 · 创维A6H（同期）', unit: '', parse: v => parseMetricNumber(v), fmt: v => Math.round(v).toLocaleString('zh-CN') },
   searchCtr: { label: '搜索点击率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${Number(v.toFixed(1))}%` },
   detailDuration: { label: '平均停留时长', unit: '秒', parse: v => parseMetricNumber(v), fmt: v => `${v}秒` },
+  cartCvr: { label: '加购转化率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${v}%` },
   redbookTotalOnline: { label: '红书总上线', unit: '篇', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 篇` },
   biliTotalOnline: { label: 'B站总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` },
   douyinTotalOnline: { label: '抖音总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` }
@@ -601,6 +602,10 @@ function initReport() {
             <div class="benchmark-col">
               ${metricWithBenchmark('平均停留时长', val(d, 'detailDuration'), '控比 · 发现X 2027（同期）', val(d, 'detailDurationBenchmark'), 'detailDuration', 'detailDurationBenchmark')}
               ${trendPanel('detailDuration', d, { width: 540 })}
+            </div>
+            <div class="benchmark-col">
+              ${metricWithBenchmark('加购转化率', val(d, 'cartCvr', '%'), '控比 · 发现X 2027（同期）', val(d, 'cartCvrBenchmark', '%'), 'cartCvr', 'cartCvrBenchmark')}
+              ${trendPanel('cartCvr', d, { width: 540 })}
             </div>
           </div>
         </div>
