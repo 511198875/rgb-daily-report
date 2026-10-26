@@ -108,9 +108,8 @@
           var st = saved._savedAt ? Date.parse(saved._savedAt) : 0;
           if (isFinite(at)) archiveNewer = at > (isFinite(st) ? st : 0);
         }
-        var merged = archiveNewer
-          ? Object.assign({}, nonEmpty(saved), j, { reportDate: saved.reportDate || date })
-          : Object.assign({}, j, nonEmpty(saved), { reportDate: saved.reportDate || date });
+        // 用户手动填过的非空值永远优先，归档只补空缺（避免归档里的空字段清掉本地填写内容）
+        var merged = Object.assign({}, j, nonEmpty(saved), { reportDate: saved.reportDate || date });
         merged._trends = mergeTrends(j && j._trends, saved && saved._trends);
         merged._archiveStamp = j._archiveStamp;
         localStorage.setItem(STORE, JSON.stringify(merged));
