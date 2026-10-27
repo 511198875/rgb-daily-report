@@ -648,6 +648,7 @@ function initReport() {
             ${metric('当日预售完成（T-1）', val(d,'presale',' 台'), 'presale')}
             ${metric('冲刺期累计', sprintSum(d, 'presale') === null ? '待补充' : Math.round(sprintSum(d, 'presale')).toLocaleString('zh-CN') + ' 台')}
             ${metric('日环比', dodText(autoDod(d, 'presale')) || '待补充')}
+            ${metric('总完成率', val(d,'presaleRate','%'), 'presaleRate')}
           </div>
           ${trendPanel('presale', d, { width: 900, height: 152, large: true, open: true, heading: '预售完成曲线' })}
         </div>
