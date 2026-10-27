@@ -47,15 +47,29 @@
     if (location.search.indexOf('d=') >= 0) return;
     var d = new Date(), p = function (n) { return String(n).padStart(2, '0'); };
     var date = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-    // 本地存的是今天这份就不覆盖；存的是旧日期则带入今天归档，避免编辑到过期数据
+    // 本地存的是今天这份就不覆盖；存的是旧日期则带入归档，避免编辑到过期数据
     if (hasContent && saved.reportDate === date) return;
-    fetch('data/' + date + '.json', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .catch(function () { return null; })
-      .then(function (j) {
-        if (!j || !Object.keys(j).length) return;
-        localStorage.setItem(STORE, JSON.stringify(Object.assign({}, j, { reportDate: date })));
-        location.reload();
+    // 先试今天的归档，没有则回退到归档最新一期作为底稿（趋势历史随 _trends 一起带入）
+    fetch('data/manifest.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : { dates: [] }; })
+      .catch(function () { return { dates: [] }; })
+      .then(function (mf) {
+        var dates = (mf.dates || []).slice();
+        var order = dates.indexOf(date) >= 0
+          ? [date].concat(dates.filter(function (d) { return d !== date; }))
+          : dates.slice().reverse();
+        if (!order.length) return;
+        (function tryNext(i) {
+          if (i >= order.length) return;
+          fetch('data/' + order[i] + '.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; })
+            .then(function (j) {
+              if (!j || !Object.keys(j).length) { tryNext(i + 1); return; }
+              localStorage.setItem(STORE, JSON.stringify(Object.assign({}, j, { reportDate: date })));
+              location.reload();
+            });
+        })(0);
       });
   })();
   </script>
