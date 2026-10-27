@@ -594,7 +594,7 @@ function initReport() {
   const campaign = campaignProgress(tMinusOne(d.reportDate));
   root.innerHTML = `
     <section class="card" aria-label="核心指标">
-      <div class="card-head"><div><div class="card-kicker">02 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
+      <div class="card-head"><div><div class="card-kicker">03 / TRAFFIC</div><h2>核心流量</h2></div><div class="accent-line"></div></div>
       <div class="metric-groups">
         <div class="metric-group">
           <div class="metric-group-label">型号词表现${has(d.modelSearchTarget) ? `<small>${CAMPAIGN.start.slice(5).replace('-', '/')}–${CAMPAIGN.end.slice(5).replace('-', '/')} 目标 ${esc(d.modelSearchTarget)}${dailyTargetOf(d) ? ` · 日均 ${Math.round(dailyTargetOf(d)).toLocaleString('zh-CN')}` : ''}</small>` : ''}</div>
@@ -628,7 +628,7 @@ function initReport() {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><div><div class="card-kicker">03 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 数据日第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">04 / DIGITAL MARKETING</div><div class="card-title-row"><h2>数字营销</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} · 数据日第 ${campaign.passedDays} 天 / 共 ${campaign.totalDays} 天">时间进度 ${campaign.percent}%</span>` : ''}</div></div><div class="accent-line red"></div></div>
       <div class="channel-grid">
         ${channel('红书', d, 'redbook', { unit: ' 篇' })}
         ${channel('B站', d, 'bili', { unit: ' 条' })}
@@ -645,7 +645,7 @@ function initReport() {
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><div><div class="card-kicker">04 / REPUTATION & VOICE</div><h2>口碑与用户原声</h2></div><div class="accent-line amber"></div></div>
+      <div class="card-head"><div><div class="card-kicker">05 / REPUTATION & VOICE</div><h2>口碑与用户原声</h2></div><div class="accent-line amber"></div></div>
       <div class="subsection is-first">
         <div class="subsection-title"><span>口碑进度</span><small>REPUTATION PROGRESS</small></div>
         <div class="metrics rep-metrics">
@@ -666,19 +666,6 @@ function initReport() {
       ${noteBlock('中性原声', d.voiceNeutralText, 'note', 'voiceNeutralText', 'margin-top:14px')}
       ${noteBlock('负面原声', d.voiceBadText, 'note negative', 'voiceBadText', 'margin-top:14px')}
     </section>
-    <section class="card">
-      <div class="card-head"><div><div class="card-kicker">05 / PRESALE</div><div class="card-title-row"><h2>预售提报</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} 累计">冲刺期累计 ${Math.round(sprintSum(d, 'presale') || 0).toLocaleString('zh-CN')} 台</span>` : ''}</div></div><div class="accent-line green"></div></div>
-      <div class="metric-groups">
-        <div class="metric-group">
-          <div class="metrics">
-            ${metric('当日预售完成（T-1）', val(d,'presale',' 台'), 'presale')}
-            ${metric('冲刺期累计', sprintSum(d, 'presale') === null ? '待补充' : Math.round(sprintSum(d, 'presale')).toLocaleString('zh-CN') + ' 台')}
-            ${metric('日环比', dodText(autoDod(d, 'presale')) || '待补充')}
-          </div>
-          ${trendPanel('presale', d, { width: 900, height: 230, large: true, open: true, heading: '预售完成曲线' })}
-        </div>
-      </div>
-    </section>
     ${actionCard(d)}
   `;
 
@@ -689,6 +676,23 @@ function initReport() {
       <div class="note"><span class="note-label">当日诊断<button type="button" class="auto-btn" id="auto-diagnosis-btn" title="按四段式模板自动生成，生成后可继续手动修改">⚡ 自动分析</button></span><span class="note-body"${editableAttrs('trafficDiagnosis')}>${diagnosisHtml(d.trafficDiagnosis)}</span></div>
       ${shotBlock(d.diagShot)}`;
   root.prepend(diagSection);
+
+  // 预售表现：置于最顶部（流量诊断之后、核心流量之前）
+  const presaleSection = document.createElement('section');
+  presaleSection.className = 'card';
+  presaleSection.innerHTML = `
+      <div class="card-head"><div><div class="card-kicker">02 / PRESALE</div><div class="card-title-row"><h2>预售表现</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} 累计">冲刺期累计 ${Math.round(sprintSum(d, 'presale') || 0).toLocaleString('zh-CN')} 台</span>` : ''}</div></div><div class="accent-line green"></div></div>
+      <div class="metric-groups">
+        <div class="metric-group">
+          <div class="metrics">
+            ${metric('当日预售完成（T-1）', val(d,'presale',' 台'), 'presale')}
+            ${metric('冲刺期累计', sprintSum(d, 'presale') === null ? '待补充' : Math.round(sprintSum(d, 'presale')).toLocaleString('zh-CN') + ' 台')}
+            ${metric('日环比', dodText(autoDod(d, 'presale')) || '待补充')}
+          </div>
+          ${trendPanel('presale', d, { width: 900, height: 230, large: true, open: true, heading: '预售完成曲线' })}
+        </div>
+      </div>`;
+  root.insertBefore(presaleSection, root.children[1] || null);
 
   root.querySelectorAll('.shot-view img').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.src));
