@@ -303,3 +303,34 @@ h1 { margin: 8px 0 8px; font-size: clamp(32px, 5vw, 58px); line-height: .98; let
 .date-switch select:hover { border-color: #C9C2B4; }
 .date-switch select:focus { border-color: var(--blue); }
 @media print { .date-switch { display: none !important; } }
+
+/* === 紧凑版式覆盖：只压缩留白，不改变信息构成与结构 === */
+.hero { padding: 16px 0 10px; gap: 20px; }
+.hero-date strong { font-size: 27px; }
+.report-grid { gap: 8px; padding-bottom: 14px; }
+.card { padding: 10px 13px; }
+.card-head { gap: 12px; margin-bottom: 6px; }
+.card h2 { font-size: 17px; }
+.metric-groups { gap: 7px; }
+.metric-group { gap: 6px; }
+.metric-group-label { font-size: 12px; }
+.metrics { border-radius: 11px; }
+.metric { padding: 7px 11px; min-height: 54px; }
+.metric strong { margin-top: 3px; font-size: 20px; }
+.metric.with-benchmark { min-height: 74px; }
+.benchmark { padding-top: 6px; }
+.trend-panel { margin-top: 1px; border-radius: 11px; }
+.trend-panel summary { padding: 7px 13px; gap: 14px; }
+.trend-chart-head { padding: 8px 14px 0; }
+.trend-chart-scroll { padding: 0 6px 4px; }
+.trend-chart { height: 152px; }
+.trend-chart-lg { height: 150px; }
+.trend-empty { padding: 12px; font-size: 12px; }
+.subsection { margin-top: 10px; padding-top: 9px; }
+.subsection-title { margin-bottom: 8px; }
+.channel-grid { gap: 8px; }
+.channel-card { padding: 10px 12px; border-radius: 11px; }
+.channel-name { margin-bottom: 7px; font-size: 14px; }
+.channel-stats { gap: 7px 8px; }
+.content-metrics .metric, .rep-metrics .metric { padding: 10px 12px; min-height: 58px; }
+.content-metrics .metric strong, .rep-metrics .metric strong { margin-top: 3px; font-size: 17px; }

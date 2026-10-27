@@ -380,7 +380,7 @@ function trendPanel(key, data, opts = {}) {
     return `<details class="trend-panel"${opts.open ? ' open' : ''}><summary><span><b>${esc(opts.heading || '日趋势图')}</b><small>最近 7 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-empty">填写${cfg.label}数据后，将自动生成每日趋势折线图</div></details>`;
   }
 
-  const height = opts.height || 230, left = 56, right = 18, top = 24, bottom = 44;
+  const height = opts.height || 168, left = 56, right = 18, top = 24, bottom = 44;
   const values = points.map(point => point.value);
   let min = Math.min(...values), max = Math.max(...values);
   const padding = Math.max((max - min) * .18, max * .08, 1);
@@ -586,8 +586,8 @@ function initReport() {
             ${metric('10月目标完成率（10.21日-10.31日）', rateText(autoRate(d, 'modelSearch', 'month'), d.modelSearchMonthlyRate))}
             ${metric('控比 · 创维A6H（同期）', val(d, 'a6hModelSearch', ' 次'), 'a6hModelSearch')}
           </div>
-          ${trendPanel('modelSearch', d, { width: 900, height: 200, large: true, open: true })}
-          ${trendPanel('a6hModelSearch', d, { width: 900, height: 200 })}
+          ${trendPanel('modelSearch', d, { width: 900, height: 150, large: true, open: true })}
+          ${trendPanel('a6hModelSearch', d, { width: 900, height: 150 })}
           ${shotBlock(d.modelShot)}
         </div>
         <div class="metric-group secondary">
@@ -649,7 +649,7 @@ function initReport() {
             ${metric('冲刺期累计', sprintSum(d, 'presale') === null ? '待补充' : Math.round(sprintSum(d, 'presale')).toLocaleString('zh-CN') + ' 台')}
             ${metric('日环比', dodText(autoDod(d, 'presale')) || '待补充')}
           </div>
-          ${trendPanel('presale', d, { width: 900, height: 230, large: true, open: true, heading: '预售完成曲线' })}
+          ${trendPanel('presale', d, { width: 900, height: 152, large: true, open: true, heading: '预售完成曲线' })}
         </div>
       </div>`;
   root.insertBefore(presaleSection, root.children[1] || null);
