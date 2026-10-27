@@ -162,7 +162,16 @@
           .filter(function (v, i, a) { return a.indexOf(v) === i; })
           .sort();
         var latest = archived.length ? archived[archived.length - 1] : null;
+        // 这一期到底有没有数据：命中线上归档 / 本地快照 / 本机正在编辑
+        var hasDateData = function (d) {
+          if (!d) return false;
+          if (arch[d] && hasContent(arch[d])) return true;
+          if ((mf.dates || []).indexOf(d) >= 0) return true;
+          return saved.reportDate === d && local;
+        };
+        // URL 上带着的日期（如 #date=2026-10-27）若还没数据，强制回退到最近一期有的
         if (!cur || list.indexOf(cur) < 0) cur = latest || today();
+        else if (!hasDateData(cur) && latest) cur = latest;
         var sameDate = saved.reportDate === cur;
         build(list, cur);
         // 本地没有填写内容、或本地记的是别的日期 → 按归档渲染；同日才合并本地编辑
