@@ -71,27 +71,9 @@ const FIELD_SECTIONS = [
     ]
   },
   {
-    id: 'reputation', title: '口碑与用户原声', desc: '记录口碑进度与评论区负面声音。',
+    id: 'adjust', title: '动作调整', desc: '记录今日待执行的动作。',
     fields: [
-      ['repPositive', '今日发布正面内容数量', 'number', '条'],
-      ['repComment', '今日维护评论内容数量', 'number', '条'],
-      ['repTop', 'TOP 占比', 'number', '%'],
-      ['repCoverage', '今日覆盖率', 'number', '%'],
-      ['negNew', '负面内容新增数量', 'number', '条'],
-      ['negCompetitor', '负面 · 竞品攻击', 'number', '条'],
-      ['negQuality', '负面 · 产品质量', 'number', '条'],
-      ['negAfterSale', '负面 · 产品售后', 'number', '条'],
-      ['negSummary', '评论区负面总结', 'textarea', '一两句话概括'],
-      ['voiceGoodText', '用户原声 · 正面内容', 'textarea', '正面评论摘录，多条用换行分隔'],
-      ['voiceNeutralText', '用户原声 · 中性内容', 'textarea', '中性评论摘录，多条用换行分隔'],
-      ['voiceBadText', '用户原声 · 负面内容', 'textarea', '负面评论摘录，多条用换行分隔']
-    ]
-  },
-  {
-    id: 'adjust', title: '动作调整', desc: '记录流量与口碑今日待执行的动作。',
-    fields: [
-      ['trafficAdjustment', '流量 · 动作调整', 'textarea', '无异常可不填'],
-      ['reputationAdjustment', '口碑 · 动作调整', 'textarea', '无异常可不填']
+      ['trafficAdjustment', '动作调整', 'textarea', '无异常可不填']
     ]
   },
   {
@@ -644,28 +626,6 @@ function initReport() {
         </div>
       </div>
     </section>
-    <section class="card">
-      <div class="card-head"><div><div class="card-kicker">05 / REPUTATION & VOICE</div><h2>口碑与用户原声</h2></div><div class="accent-line amber"></div></div>
-      <div class="subsection is-first">
-        <div class="subsection-title"><span>口碑进度</span><small>REPUTATION PROGRESS</small></div>
-        <div class="metrics rep-metrics">
-          ${metric('今日发布正面内容', val(d,'repPositive',' 条'), 'repPositive')}
-          ${metric('今日维护评论内容', val(d,'repComment',' 条'), 'repComment')}
-          ${metric('TOP 占比', val(d,'repTop','%'), 'repTop')}
-          ${metric('今日覆盖率', val(d,'repCoverage','%'), 'repCoverage')}
-        </div>
-      </div>
-      <div class="subsection">
-        <div class="subsection-title"><span>评论区用户声音洞察</span><small>NEGATIVE INSIGHTS</small></div>
-        <div class="insight-row">
-          ${negativePie(d)}
-          ${noteBlock('评论区负面总结', d.negSummary, 'note negative', 'negSummary')}
-        </div>
-      </div>
-      ${noteBlock('正面原声', d.voiceGoodText, 'note positive', 'voiceGoodText', 'margin-top:14px')}
-      ${noteBlock('中性原声', d.voiceNeutralText, 'note', 'voiceNeutralText', 'margin-top:14px')}
-      ${noteBlock('负面原声', d.voiceBadText, 'note negative', 'voiceBadText', 'margin-top:14px')}
-    </section>
     ${actionCard(d)}
   `;
 
@@ -868,12 +828,11 @@ function openLightbox(src) {  const old = document.getElementById('shot-lightbox
 }
 function actionCard(d) {
   const items = [
-    has(d.trafficAdjustment) && { tag: '流量', en: 'TRAFFIC', value: d.trafficAdjustment, field: 'trafficAdjustment' },
-    has(d.reputationAdjustment) && { tag: '口碑', en: 'REPUTATION', value: d.reputationAdjustment, field: 'reputationAdjustment' }
+    has(d.trafficAdjustment) && { tag: '动作', en: 'ACTION', value: d.trafficAdjustment, field: 'trafficAdjustment' }
   ].filter(Boolean);
   if (!items.length) return '';
   return `<section class="card">
-      <div class="card-head"><div><div class="card-kicker">06 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">05 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
       ${items.map((item, index) => `<div class="subsection${index === 0 ? ' is-first' : ''}"><div class="subsection-title"><span>${item.tag}</span><small>${item.en}</small></div>${noteBlock('动作调整', item.value, 'note negative', item.field)}</div>`).join('')}
     </section>`;
 }
