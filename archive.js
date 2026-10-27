@@ -3,6 +3,7 @@
   var STORE = 'rgb-daily-report-v1';
   var ARCH = 'rgb-daily-archive-v1';
   var sel = null;
+  var REMOTE_DATES = [];   // 线上已有归档的日期，供新一期继承趋势历史
 
   function pad(n) { return String(n).padStart(2, '0'); }
   function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -70,10 +71,36 @@
     var merged = base.reportDate === date
       ? Object.assign({}, base, data, { reportDate: date })
       : Object.assign({}, data, { reportDate: date });
+    // 趋势历史是跨期共享的：新一期本身没有时，继承正在查看/上一期的历史点，保证日趋势图与环比不空
+    if (!merged._trends && base._trends) merged._trends = base._trends;
+    if (!merged._modelSearchHistory && base._modelSearchHistory) merged._modelSearchHistory = base._modelSearchHistory;
     localStorage.setItem(STORE, JSON.stringify(merged));
     if (typeof initReport === 'function') initReport();
     var h = location.hash.replace(/[#&]date=[^&]*/, '').replace(/^#&?/, '');
     history.replaceState(null, '', location.pathname + (h ? '#' + h : '') + (h ? '&' : '#') + 'date=' + date);
+  }
+
+  // 新一期还没有归档数据时，继承上一期的趋势历史（本地快照优先，其次线上归档）
+  function inheritHistory(date, snap) {
+    var shell = { reportDate: date, productName: 'Vidda发现X RGB', stage: '上市期' };
+    var pool = Object.keys(readArch())
+      .concat(REMOTE_DATES)
+      .filter(function (d) { return d && d < date; })
+      .filter(function (v, i, arr) { return arr.indexOf(v) === i; })
+      .sort();
+    if (!pool.length) { render(date, Object.assign({}, snap || {}, shell)); return; }
+    var prev = pool[pool.length - 1];
+    var ps = readArch()[prev];
+    if (ps && ps._trends) { render(date, Object.assign({}, snap || {}, shell, { _trends: ps._trends })); return; }
+    fetch('data/' + prev + '.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (pj) {
+        var extra = {};
+        if (pj && pj._trends) extra._trends = pj._trends;
+        if (pj && pj._modelSearchHistory) extra._modelSearchHistory = pj._modelSearchHistory;
+        render(date, Object.assign({}, snap || {}, shell, extra));
+      });
   }
 
   function go(date) {
@@ -85,8 +112,8 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; })
       .then(function (j) {
-        if (j) render(date, mergeData(snap || {}, j));
-        else render(date, snap || { reportDate: date, productName: 'Vidda发现X RGB', stage: '上市期' });
+        if (j) { render(date, mergeData(snap || {}, j)); return; }
+        inheritHistory(date, snap);
       });
   }
 
@@ -155,6 +182,7 @@
       .then(function (r) { return r.ok ? r.json() : { dates: [] }; })
       .catch(function () { return { dates: [] }; })
       .then(function (mf) {
+        REMOTE_DATES = (mf.dates || []).slice();
         (mf.dates || []).forEach(function (d) { if (list.indexOf(d) < 0) list.push(d); });
         list.sort().reverse();
         // 默认日期 = 已有归档里最新的一期（线上归档 + 本地快照），不要把还没有数据的今天当默认
@@ -169,9 +197,8 @@
           if ((mf.dates || []).indexOf(d) >= 0) return true;
           return saved.reportDate === d && local;
         };
-        // URL 上带着的日期（如 #date=2026-10-27）若还没数据，强制回退到最近一期有的
+        // 只在 URL 日期压根不存在于列表时回退；存在（哪怕是今天的新一期）就停在该期
         if (!cur || list.indexOf(cur) < 0) cur = latest || today();
-        else if (!hasDateData(cur) && latest) cur = latest;
         var sameDate = saved.reportDate === cur;
         build(list, cur);
         // 本地没有填写内容、或本地记的是别的日期 → 按归档渲染；同日才合并本地编辑
