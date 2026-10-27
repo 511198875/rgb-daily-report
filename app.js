@@ -64,6 +64,13 @@ const FIELD_SECTIONS = [
     ]
   },
   {
+    id: 'presale', title: '预售提报', desc: '每日预售完成情况，自动生成预售完成曲线。',
+    fields: [
+      ['presale', '当日预售完成（T-1）', 'number', '台'],
+      ['presaleTarget', '预售冲刺期目标（留空不显示）', 'number', '台']
+    ]
+  },
+  {
     id: 'reputation', title: '口碑与用户原声', desc: '记录口碑进度与评论区负面声音。',
     fields: [
       ['repPositive', '今日发布正面内容数量', 'number', '条'],
@@ -219,7 +226,8 @@ const TREND_METRICS = {
   cartCvr: { label: '加购转化率', unit: '%', parse: v => parseMetricNumber(v), fmt: v => `${v}%` },
   redbookTotalOnline: { label: '红书总上线', unit: '篇', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 篇` },
   biliTotalOnline: { label: 'B站总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` },
-  douyinTotalOnline: { label: '抖音总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` }
+  douyinTotalOnline: { label: '抖音总上线', unit: '条', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v)} 条` },
+  presale: { label: '预售完成', unit: '台', parse: v => parseMetricNumber(v), fmt: v => `${Math.round(v).toLocaleString('zh-CN')}` }
 };
 function withTrendHistory(data, previous = {}, capture = false) {
   const legacy = Array.isArray(previous._modelSearchHistory) ? { modelSearch: previous._modelSearchHistory } : {};
@@ -387,7 +395,7 @@ function trendPanel(key, data, opts = {}) {
   const width = opts.width || 760;
 
   if (!points.length) {
-    return `<details class="trend-panel"${opts.open ? ' open' : ''}><summary><span><b>日趋势图</b><small>最近 7 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-empty">填写${cfg.label}数据后，将自动生成每日趋势折线图</div></details>`;
+    return `<details class="trend-panel"${opts.open ? ' open' : ''}><summary><span><b>${esc(opts.heading || '日趋势图')}</b><small>最近 7 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-empty">填写${cfg.label}数据后，将自动生成每日趋势折线图</div></details>`;
   }
 
   const height = opts.height || 230, left = 56, right = 18, top = 24, bottom = 44;
@@ -412,7 +420,7 @@ function trendPanel(key, data, opts = {}) {
     return `<g class="trend-point"><circle cx="${px}" cy="${py}" r="5"><title>${dateLabel} · ${shown}</title></circle><text class="trend-value" x="${px}" y="${py-12}" text-anchor="middle">${shown}</text><text class="trend-date" x="${px}" y="${height-16}" text-anchor="middle">${dateLabel}</text></g>`;
   }).join('');
   const latest = points[points.length - 1];
-  return `<details class="trend-panel${opts.large ? ' trend-panel-lg' : ''}"${opts.open ? ' open' : ''}><summary><span><b>日趋势图</b><small>最近 ${points.length} 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-chart-head"><span>${cfg.label}</span><b>最新 ${cfg.fmt(latest.value)}</b></div><div class="trend-chart-scroll"><svg class="trend-chart${opts.large ? ' trend-chart-lg' : ''}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${cfg.label}最近 ${points.length} 天趋势折线图"><g class="trend-grid">${grid}</g><path class="trend-area" d="${path} L ${x(points.length-1).toFixed(1)} ${height-bottom} L ${x(0).toFixed(1)} ${height-bottom} Z"/><path class="trend-line" d="${path}"/>${marks}</svg></div></details>`;
+  return `<details class="trend-panel${opts.large ? ' trend-panel-lg' : ''}"${opts.open ? ' open' : ''}><summary><span><b>${esc(opts.heading || '日趋势图')}</b><small>最近 ${points.length} 天${cfg.label}</small></span><i aria-hidden="true"></i></summary><div class="trend-chart-head"><span>${cfg.label}</span><b>最新 ${cfg.fmt(latest.value)}</b></div><div class="trend-chart-scroll"><svg class="trend-chart${opts.large ? ' trend-chart-lg' : ''}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${cfg.label}最近 ${points.length} 天趋势折线图"><g class="trend-grid">${grid}</g><path class="trend-area" d="${path} L ${x(points.length-1).toFixed(1)} ${height-bottom} L ${x(0).toFixed(1)} ${height-bottom} Z"/><path class="trend-line" d="${path}"/>${marks}</svg></div></details>`;
 }
 
 function initEditor() {
@@ -658,6 +666,19 @@ function initReport() {
       ${noteBlock('中性原声', d.voiceNeutralText, 'note', 'voiceNeutralText', 'margin-top:14px')}
       ${noteBlock('负面原声', d.voiceBadText, 'note negative', 'voiceBadText', 'margin-top:14px')}
     </section>
+    <section class="card">
+      <div class="card-head"><div><div class="card-kicker">05 / PRESALE</div><div class="card-title-row"><h2>预售提报</h2>${campaign ? `<span class="time-chip" title="${CAMPAIGN.start} 至 ${CAMPAIGN.end} 累计">冲刺期累计 ${Math.round(sprintSum(d, 'presale') || 0).toLocaleString('zh-CN')} 台</span>` : ''}</div></div><div class="accent-line green"></div></div>
+      <div class="metric-groups">
+        <div class="metric-group">
+          <div class="metrics">
+            ${metric('当日预售完成（T-1）', val(d,'presale',' 台'), 'presale')}
+            ${metric('冲刺期累计', sprintSum(d, 'presale') === null ? '待补充' : Math.round(sprintSum(d, 'presale')).toLocaleString('zh-CN') + ' 台')}
+            ${metric('日环比', dodText(autoDod(d, 'presale')) || '待补充')}
+          </div>
+          ${trendPanel('presale', d, { width: 900, height: 230, large: true, open: true, heading: '预售完成曲线' })}
+        </div>
+      </div>
+    </section>
     ${actionCard(d)}
   `;
 
@@ -848,7 +869,7 @@ function actionCard(d) {
   ].filter(Boolean);
   if (!items.length) return '';
   return `<section class="card">
-      <div class="card-head"><div><div class="card-kicker">05 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
+      <div class="card-head"><div><div class="card-kicker">06 / ACTION ITEMS</div><h2>动作调整</h2></div><div class="accent-line red"></div></div>
       ${items.map((item, index) => `<div class="subsection${index === 0 ? ' is-first' : ''}"><div class="subsection-title"><span>${item.tag}</span><small>${item.en}</small></div>${noteBlock('动作调整', item.value, 'note negative', item.field)}</div>`).join('')}
     </section>`;
 }
