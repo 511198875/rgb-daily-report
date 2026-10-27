@@ -157,7 +157,12 @@
       .then(function (mf) {
         (mf.dates || []).forEach(function (d) { if (list.indexOf(d) < 0) list.push(d); });
         list.sort().reverse();
-        if (!cur || list.indexOf(cur) < 0) cur = list[0] || today();
+        // 默认日期 = 已有归档里最新的一期（线上归档 + 本地快照），不要把还没有数据的今天当默认
+        var archived = ((mf.dates || []).concat(Object.keys(arch)))
+          .filter(function (v, i, a) { return a.indexOf(v) === i; })
+          .sort();
+        var latest = archived.length ? archived[archived.length - 1] : null;
+        if (!cur || list.indexOf(cur) < 0) cur = latest || today();
         var sameDate = saved.reportDate === cur;
         build(list, cur);
         // 本地没有填写内容、或本地记的是别的日期 → 按归档渲染；同日才合并本地编辑
